@@ -1,0 +1,9 @@
+{
+  "name": "alvynex-site",
+  "private": true,
+  "scripts": {
+    "dev": "npx serve client -l 5500",
+    "start": "npx serve client -l 5500",
+    "dev:client": "npx serve client -l 5500"
+  }
+}
