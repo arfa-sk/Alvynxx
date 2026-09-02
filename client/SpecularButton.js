@@ -199,7 +199,7 @@ export class SpecularButton {
       this.baseC.set(p.baseColor);
       
       this.program.uniforms.uAngle.value = this.angle;
-      this.program.uniforms.uRadius.value = Math.min(p.radius, Math.min(this.sizeRef.w, this.sizeRef.h) / 2) * currentDpr;
+      this.program.uniforms.uRadius.value = (this.sizeRef.h * currentDpr) * 0.5;
       this.program.uniforms.uLineColor.value = [this.lineC.r, this.lineC.g, this.lineC.b];
       this.program.uniforms.uBaseColor.value = [this.baseC.r, this.baseC.g, this.baseC.b];
       this.program.uniforms.uIntensity.value = p.intensity * this.bright;
@@ -212,27 +212,32 @@ export class SpecularButton {
     
     this.resize();
     requestAnimationFrame(() => this.resize());
+    setTimeout(() => this.resize(), 100);
+    setTimeout(() => this.resize(), 500);
     this.raf = requestAnimationFrame(this.update);
   }
 
   resize() {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const w = this.btn.offsetWidth;
-    const h = this.btn.offsetHeight;
+    const rect = this.btn.getBoundingClientRect();
+    const w = rect.width;
+    const h = rect.height;
     if (!w || !h) return;
 
     this.sizeRef.w = w;
     this.sizeRef.h = h;
 
-    const canvasW = w + PAD * 2;
-    const canvasH = h + PAD * 2;
+    const canvasW = Math.round(w + PAD * 2);
+    const canvasH = Math.round(h + PAD * 2);
     
+    this.renderer.dpr = dpr;
     this.renderer.setSize(canvasW, canvasH);
-    this.renderer.gl.viewport(0, 0, Math.floor(canvasW * dpr), Math.floor(canvasH * dpr));
+    const gl = this.renderer.gl;
+    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
-    this.program.uniforms.uCenter.value = [(PAD + w / 2) * dpr, (PAD + h / 2) * dpr];
-    this.program.uniforms.uHalfSize.value = [(w / 2) * dpr, (h / 2) * dpr];
-    this.program.uniforms.uRadius.value = Math.min(this.props.radius, Math.min(w, h) / 2) * dpr;
+    this.program.uniforms.uCenter.value = [gl.canvas.width * 0.5, gl.canvas.height * 0.5];
+    this.program.uniforms.uHalfSize.value = [(w * dpr) * 0.5, (h * dpr) * 0.5];
+    this.program.uniforms.uRadius.value = (h * dpr) * 0.5;
     this.program.uniforms.uPx.value = dpr;
     this.program.uniforms.uBaseWidth.value = dpr;
   }
@@ -252,7 +257,10 @@ export class SpecularButton {
 // Auto-initialize any buttons with the data-specular-button attribute
 function initSpecularButtons() {
   document.querySelectorAll('[data-specular-button]').forEach(el => {
-    if (el._specularButton) return;
+    if (el._specularButton) {
+      el._specularButton.resize();
+      return;
+    }
     const size = el.getAttribute('data-sb-size') || 'md';
     const lineColor = el.getAttribute('data-sb-line-color') || '#ffffff';
     const baseColor = el.getAttribute('data-sb-base-color') || '#525252';
@@ -269,4 +277,18 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initSpecularButtons);
 } else {
   initSpecularButtons();
+}
+
+window.addEventListener('load', () => {
+  document.querySelectorAll('[data-specular-button]').forEach(el => {
+    el._specularButton?.resize();
+  });
+});
+
+if (document.fonts?.ready) {
+  document.fonts.ready.then(() => {
+    document.querySelectorAll('[data-specular-button]').forEach(el => {
+      el._specularButton?.resize();
+    });
+  });
 }

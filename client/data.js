@@ -38,12 +38,66 @@ const PORTFOLIO = {
 
     // ─── Our Work ────────────────────────────────────────
     work: [
-        { title: "Product Launch Reel", tag: "Product Launch", tagColor: "pink", description: "A fast-paced launch video built to spread across social the day a feature ships.", videoUrl: "", thumbnail: "" },
-        { title: "Feature Walkthrough", tag: "Product Demo", tagColor: "cyan", description: "A clear, guided walkthrough of a core product feature built to convert trial signups.", videoUrl: "", thumbnail: "" },
-        { title: "Onboarding Explainer", tag: "Product Demo", tagColor: "cyan", description: "A short explainer used inside the app to raise activation rates for new users.", videoUrl: "", thumbnail: "" },
-        { title: "App Launch Teaser", tag: "Product Launch", tagColor: "pink", description: "A teaser video that built hype ahead of a public product launch.", videoUrl: "", thumbnail: "" },
-        { title: "Investor Update Video", tag: "Product Demo", tagColor: "cyan", description: "A polished update video summarizing traction and roadmap for stakeholders.", videoUrl: "", thumbnail: "" },
-        { title: "Feature Announcement", tag: "Product Launch", tagColor: "pink", description: "A punchy announcement video for a major feature release.", videoUrl: "", thumbnail: "" },
+        {
+            title: "Deel Launch Ad",
+            tag: "Product Launch",
+            tagColor: "pink",
+            description: "A fast-paced launch video built to spread across social channels the day a major feature ships.",
+            videoSrc: "assest/videos/deel.mp4",
+            fileId: "14sKSGo-wlXnJr_rYfcG6CorGQCaOmFlx",
+            videoUrl: "https://drive.google.com/file/d/14sKSGo-wlXnJr_rYfcG6CorGQCaOmFlx/preview",
+            thumbnail: ""
+        },
+        {
+            title: "Elevate Pay Explainer",
+            tag: "Product Demo",
+            tagColor: "cyan",
+            description: "A clear, guided walkthrough of core fintech mechanics built to convert and educate trial users.",
+            videoSrc: "assest/videos/elevate.mp4",
+            fileId: "1bQ5OUPCA3Kjz0ZYJpmyS3ZhLRZZiTcab",
+            videoUrl: "https://drive.google.com/file/d/1bQ5OUPCA3Kjz0ZYJpmyS3ZhLRZZiTcab/preview",
+            thumbnail: ""
+        },
+        {
+            title: "Flowla Commercial",
+            tag: "Product Launch",
+            tagColor: "pink",
+            description: "A dynamic commercial ad engineered to highlight seamless workflow and customer engagement.",
+            videoSrc: "assest/videos/flowla.mp4",
+            fileId: "1YQN0jxITwz_flEkaSWUirFu2DstSK1Vs",
+            videoUrl: "https://drive.google.com/file/d/1YQN0jxITwz_flEkaSWUirFu2DstSK1Vs/preview",
+            thumbnail: ""
+        },
+        {
+            title: "NayaPay Feature Reel",
+            tag: "Product Demo",
+            tagColor: "cyan",
+            description: "Feature showcase highlighting frictionless mobile payments, modern cards, and app onboarding.",
+            videoSrc: "assest/videos/nayapay.mp4",
+            fileId: "1gFz9jl4ghoUbug9ZzoPaKsEH0C-yf-bM",
+            videoUrl: "https://drive.google.com/file/d/1gFz9jl4ghoUbug9ZzoPaKsEH0C-yf-bM/preview",
+            thumbnail: ""
+        },
+        {
+            title: "Ramp 4K Spec Ad",
+            tag: "Commercial",
+            tagColor: "pink",
+            description: "Ultra-sharp 4K motion design emphasizing corporate cards, spend management, and scale.",
+            videoSrc: "assest/videos/ramp.mp4",
+            fileId: "1SNjnNQfNOjQhnaYi6u2SVyNmnBTWWI3x",
+            videoUrl: "https://drive.google.com/file/d/1SNjnNQfNOjQhnaYi6u2SVyNmnBTWWI3x/preview",
+            thumbnail: ""
+        },
+        {
+            title: "Stenox Short Ad",
+            tag: "Short-Form Ad",
+            tagColor: "cyan",
+            description: "Punchy, high-impact short-form video tailored for high conversion and viral reach.",
+            videoSrc: "assest/videos/stenox.mp4",
+            fileId: "1vJm7x0LLeYwkQJoTfhjPsVbKmv62ZPYN",
+            videoUrl: "https://drive.google.com/file/d/1vJm7x0LLeYwkQJoTfhjPsVbKmv62ZPYN/preview",
+            thumbnail: ""
+        },
     ],
 
     // ─── Impact ──────────────────────────────────────────

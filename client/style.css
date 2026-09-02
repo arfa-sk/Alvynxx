@@ -249,12 +249,13 @@ img {
 }
 
 .hero-greeting {
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 500;
-    color: var(--accent);
+    color: #ffffff;
     margin-bottom: 24px;
-    letter-spacing: 2px;
+    letter-spacing: 2.5px;
     text-transform: uppercase;
+    opacity: 0.9;
 }
 
 .hero-title {
@@ -483,80 +484,235 @@ img {
 .work-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
+    gap: 28px;
     text-align: left;
 }
 
 .work-card {
-    display: block;
-    background: var(--bg-card);
-    border: 1px solid var(--border-card);
-    border-radius: var(--radius);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background: #000000;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
     overflow: hidden;
-    transition: all 0.4s;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
+                border-color 0.3s ease, 
+                box-shadow 0.4s ease;
     cursor: pointer;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
+    z-index: 1;
+    transform: translateY(0) scale(1);
+    transform-origin: center center;
+    will-change: transform;
 }
 
 .work-card:hover {
-    border-color: var(--border-card-hover);
-    background: var(--bg-card-hover);
-    transform: translateY(-4px);
+    z-index: 10;
+    border-color: rgba(255, 255, 255, 0.28);
+    background: #000000;
+    transform: translateY(-16px) scale(1.06) !important;
+    box-shadow: 0 35px 70px -15px rgba(0, 0, 0, 0.95), 0 0 0 1px rgba(255, 255, 255, 0.15);
 }
 
-.work-thumb {
+.work-video-wrapper {
     position: relative;
-    height: 200px;
-    background: linear-gradient(135deg, rgba(0, 229, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%);
-    background-size: cover;
-    background-position: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #000000;
+    overflow: hidden;
 }
 
-.play-badge {
-    width: 56px;
-    height: 56px;
+.work-video-player {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    background: #000000;
+    pointer-events: none;
+    transition: transform 0.4s ease;
+}
+
+.work-card:hover .work-video-player {
+    transform: scale(1.03);
+}
+
+.work-video-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+    padding: 14px;
+    background: linear-gradient(180deg, rgba(0,0,0,0) 50%, rgba(0,0,0,0.6) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.work-card:hover .work-video-overlay {
+    opacity: 1;
+}
+
+.work-video-controls {
+    display: flex;
+    gap: 8px;
+    pointer-events: auto;
+}
+
+.work-control-btn {
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
-    background: rgba(0, 0, 0, 0.6);
-    color: var(--text-primary);
-    display: flex;
+    background: rgba(20, 20, 20, 0.85);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: #ffffff;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.3s;
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
 
-.work-card:hover .play-badge {
-    background: var(--accent);
-    color: var(--bg-primary);
+.work-control-btn:hover {
+    background: #ffffff;
+    color: #000000;
+    border-color: #ffffff;
     transform: scale(1.1);
 }
 
 .work-info {
-    padding: 24px;
+    padding: 24px 26px 28px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    background: #000000;
 }
 
-.work-info h3 {
-    font-size: 20px;
-    font-weight: 700;
-    margin-bottom: 8px;
+.work-tag-row {
+    margin-bottom: 12px;
 }
 
 .work-tag {
     display: inline-block;
     font-size: 11px;
-    font-weight: 600;
+    font-weight: 500;
     padding: 4px 12px;
-    border-radius: 4px;
-    margin-bottom: 12px;
+    border-radius: 100px;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.8px;
+    background: rgba(255, 255, 255, 0.04);
+    color: #a1a1aa;
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    transition: all 0.25s ease;
+}
+
+.work-card:hover .work-tag {
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.work-info h3 {
+    font-size: 20px;
+    font-weight: 500;
+    margin-bottom: 8px;
+    letter-spacing: -0.02em;
+    color: #ffffff;
 }
 
 .work-info p {
     font-size: 14px;
-    color: var(--text-secondary);
-    line-height: 1.7;
+    color: #8e8e93;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Lightbox Video Modal */
+.video-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.88);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    padding: 24px;
+}
+
+.video-modal.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.video-modal-content {
+    position: relative;
+    width: 100%;
+    max-width: 960px;
+    background: #050505;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(220, 20, 30, 0.2);
+    transform: scale(0.95);
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.video-modal.active .video-modal-content {
+    transform: scale(1);
+}
+
+.video-modal-video {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    display: block;
+    background: #000000;
+}
+
+.video-modal-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.2s ease;
+}
+
+.video-modal-close:hover {
+    background: #ffffff;
+    color: #000000;
+    transform: scale(1.1);
+}
+
+.video-modal-header {
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.video-modal-title {
+    font-size: 18px;
+    font-weight: 500;
+    color: #ffffff;
+    letter-spacing: -0.01em;
 }
 
 /* ========================================
@@ -784,39 +940,52 @@ img {
 .pricing-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
+    gap: 28px;
     text-align: left;
 }
 
 .pricing-card {
+    position: relative;
     display: flex;
     flex-direction: column;
-    background: var(--bg-card);
-    border: 1px solid var(--border-card);
-    border-radius: var(--radius);
-    padding: 32px;
-    transition: all 0.4s;
+    background: #000000;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    padding: 36px 32px 32px;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
+                border-color 0.3s ease, 
+                box-shadow 0.4s ease;
+    cursor: pointer;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
+    z-index: 1;
+    transform: translateY(0) scale(1);
+    transform-origin: center center;
+    will-change: transform;
 }
 
 .pricing-card:hover {
-    border-color: var(--border-card-hover);
-    background: var(--bg-card-hover);
-    transform: translateY(-4px);
+    z-index: 10;
+    border-color: rgba(255, 255, 255, 0.28);
+    background: #000000;
+    transform: translateY(-16px) scale(1.06) !important;
+    box-shadow: 0 35px 70px -15px rgba(0, 0, 0, 0.95), 0 0 0 1px rgba(255, 255, 255, 0.15);
 }
 
 .pricing-card h3 {
     font-size: 22px;
-    font-weight: 700;
+    font-weight: 500;
     margin-bottom: 12px;
+    color: #ffffff;
+    letter-spacing: -0.01em;
 }
 
 .pricing-desc {
     font-size: 14px;
-    color: var(--text-secondary);
+    color: #8e8e93;
     line-height: 1.6;
     padding-bottom: 20px;
     margin-bottom: 20px;
-    border-bottom: 1px solid var(--border-card);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .pricing-features {
@@ -828,7 +997,7 @@ img {
 .pricing-features li {
     position: relative;
     font-size: 14px;
-    color: var(--text-secondary);
+    color: #a1a1aa;
     padding-left: 20px;
     margin-bottom: 12px;
     line-height: 1.5;
@@ -842,7 +1011,7 @@ img {
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: var(--accent);
+    background: rgba(255, 255, 255, 0.4);
 }
 
 .pricing-cta {
@@ -850,22 +1019,32 @@ img {
 }
 
 /* ========================================
-   FAQ SECTION
+   FAQ SECTION (MINIMALIST ACCORDION)
    ======================================== */
 .faq-list {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    max-width: 840px;
+    margin: 40px auto 0;
     text-align: left;
-    max-width: 800px;
-    margin: 0 auto;
 }
 
 .faq-item {
-    border: 1px solid var(--border-card);
-    border-radius: var(--radius-sm);
+    border: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: transparent !important;
+    border-radius: 0;
     overflow: hidden;
-    background: var(--bg-card);
+    box-shadow: none;
+    transition: border-color 0.3s ease;
+}
+
+.faq-item:first-child {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.faq-item:hover {
+    border-bottom-color: rgba(255, 255, 255, 0.22);
 }
 
 .faq-question {
@@ -873,59 +1052,104 @@ img {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 16px;
-    padding: 20px 24px;
-    background: none;
+    gap: 20px;
+    padding: 24px 0;
+    background: transparent;
     border: none;
-    color: var(--text-primary);
+    color: #e4e4e7;
     font-family: var(--font-sans);
-    font-size: 15px;
+    font-size: 17px;
     font-weight: 500;
+    letter-spacing: -0.01em;
     text-align: left;
     cursor: pointer;
+    transition: color 0.25s ease;
+}
+
+.faq-question:hover {
+    color: #ffffff;
 }
 
 .faq-icon {
     flex-shrink: 0;
-    color: var(--accent);
-    transition: transform 0.3s;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #a1a1aa;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), background 0.25s ease, color 0.25s ease;
+}
+
+.faq-item:hover .faq-icon {
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
 }
 
 .faq-item.open .faq-icon {
     transform: rotate(45deg);
+    background: #ffffff;
+    color: #000000;
 }
 
 .faq-answer {
     max-height: 0;
     overflow: hidden;
-    transition: max-height 0.3s ease;
+    transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .faq-item.open .faq-answer {
-    max-height: 300px;
+    max-height: 400px;
 }
 
 .faq-answer p {
-    padding: 0 24px 20px;
-    font-size: 14px;
-    color: var(--text-secondary);
+    padding: 0 0 24px 0;
+    font-size: 15px;
+    color: #8e8e93;
     line-height: 1.7;
 }
 
 /* ========================================
-   BOOKING SECTION
+   BOOKING / TALLY SECTION
    ======================================== */
-.booking .container {
-    max-width: 900px;
+.booking {
+    padding: 90px 0 120px;
 }
 
-.calendly-inline-widget {
-    min-width: 320px;
-    height: 700px;
-    margin-top: 32px;
-    border-radius: var(--radius);
-    overflow: hidden;
+.booking .container {
+    max-width: 860px;
 }
+
+.tally-card-wrap {
+    margin-top: 44px;
+    background: #000000;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
+    padding: 36px 32px;
+    box-shadow: 0 24px 60px -15px rgba(0, 0, 0, 0.95);
+    overflow: hidden;
+    text-align: left;
+}
+
+.tally-card-wrap iframe {
+    width: 100%;
+    border: none;
+    display: block;
+    min-height: 800px;
+    background: transparent;
+}
+
+@media (max-width: 768px) {
+    .tally-card-wrap {
+        padding: 24px 16px;
+        border-radius: 18px;
+    }
+}
+
+
 
 /* ========================================
    FOOTER
@@ -1187,10 +1411,6 @@ img {
     .hero-stats {
         flex-direction: column;
         gap: 20px;
-    }
-
-    .calendly-inline-widget {
-        height: 900px;
     }
 
     .hero-actions {

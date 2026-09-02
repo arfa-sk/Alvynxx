@@ -3,16 +3,17 @@
   --sb-tint: #ffffff;
   --sb-tint-opacity: 0;
   --sb-blur: 0px;
-  --sb-text-color: #f5f5f5;
+  --sb-text-color: #ffffff;
 
   position: relative !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  border-radius: var(--sb-radius);
+  border-radius: 100px !important;
+  background: #000000 !important;
   cursor: pointer;
   outline: none;
-  transition: transform 0.15s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
   text-decoration: none;
   overflow: visible !important;
   box-sizing: border-box;

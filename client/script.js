@@ -60,26 +60,154 @@ function renderHero(hero, stats) {
 }
 
 function renderWork(work) {
-    document.getElementById('work-grid').innerHTML = work.map(w => {
-        const thumbStyle = w.thumbnail ? `background-image:url('${w.thumbnail}');` : '';
-        const card = `
-            <div class="work-thumb" style="${thumbStyle}">
-                <div class="play-badge">${ICONS.play}</div>
-            </div>
-            <div class="work-info">
-                <h3>${w.title}</h3>
-                ${w.tag ? `<span class="work-tag" style="background:${TAG_COLORS[w.tagColor]?.bg};color:${TAG_COLORS[w.tagColor]?.color}">${w.tag}</span>` : ''}
-                <p>${w.description || ''}</p>
+    const grid = document.getElementById('work-grid');
+    if (!grid) return;
+
+    grid.innerHTML = work.map((w, index) => {
+        const videoSrc = w.videoSrc || '';
+        let mediaHtml = '';
+
+        if (videoSrc) {
+            mediaHtml = `
+                <div class="work-video-wrapper">
+                    <video class="work-video-player" src="${videoSrc}" autoplay muted loop playsinline preload="metadata"></video>
+                    <div class="work-video-overlay">
+                        <div class="work-video-controls">
+                            <button class="work-control-btn sound-btn" title="Toggle sound" aria-label="Toggle sound">
+                                <svg class="sound-icon-muted" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+                                <svg class="sound-icon-on" style="display:none;" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                            </button>
+                            <button class="work-control-btn expand-btn" title="Watch in HD" aria-label="Watch in HD">
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        } else if (w.thumbnail) {
+            mediaHtml = `
+                <div class="work-thumb" style="background-image:url('${w.thumbnail}');">
+                    <div class="play-badge">${ICONS.play}</div>
+                </div>
+            `;
+        } else {
+            mediaHtml = `
+                <div class="work-thumb">
+                    <div class="play-badge">${ICONS.play}</div>
+                </div>
+            `;
+        }
+
+        return `
+            <div class="work-card" data-video-index="${index}">
+                ${mediaHtml}
+                <div class="work-info">
+                    <h3>${w.title}</h3>
+                    <p>${w.description || ''}</p>
+                </div>
             </div>
         `;
-        return w.videoUrl
-            ? `<a href="${w.videoUrl}" target="_blank" rel="noopener" class="work-card">${card}</a>`
-            : `<div class="work-card">${card}</div>`;
     }).join('');
+
+    grid.querySelectorAll('.work-video-player').forEach(video => {
+        video.play().catch(() => {});
+    });
+
+    attachWorkVideoEvents(work);
+}
+
+function attachWorkVideoEvents(work) {
+    const grid = document.getElementById('work-grid');
+    if (!grid) return;
+
+    let modal = document.getElementById('work-video-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'work-video-modal';
+        modal.className = 'video-modal';
+        modal.innerHTML = `
+            <div class="video-modal-content">
+                <button class="video-modal-close" id="video-modal-close-btn" aria-label="Close modal">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+                <video id="video-modal-player" class="video-modal-video" controls autoplay playsinline></video>
+                <div class="video-modal-header">
+                    <div class="video-modal-title" id="video-modal-title"></div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+
+        const closeBtn = document.getElementById('video-modal-close-btn');
+        const modalPlayer = document.getElementById('video-modal-player');
+
+        const closeModal = () => {
+            modal.classList.remove('active');
+            modalPlayer.pause();
+            modalPlayer.src = '';
+        };
+
+        closeBtn.addEventListener('click', closeModal);
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && modal.classList.contains('active')) closeModal();
+        });
+    }
+
+    grid.querySelectorAll('.work-card').forEach((card, index) => {
+        const item = work[index];
+        const video = card.querySelector('.work-video-player');
+        const soundBtn = card.querySelector('.sound-btn');
+        const expandBtn = card.querySelector('.expand-btn');
+
+        if (soundBtn && video) {
+            soundBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const willMute = !video.muted;
+                if (!willMute) {
+                    grid.querySelectorAll('.work-video-player').forEach(v => {
+                        v.muted = true;
+                    });
+                    grid.querySelectorAll('.sound-icon-muted').forEach(i => i.style.display = 'block');
+                    grid.querySelectorAll('.sound-icon-on').forEach(i => i.style.display = 'none');
+                }
+                video.muted = willMute;
+                soundBtn.querySelector('.sound-icon-muted').style.display = willMute ? 'block' : 'none';
+                soundBtn.querySelector('.sound-icon-on').style.display = willMute ? 'none' : 'block';
+            });
+        }
+
+        const openModal = () => {
+            if (!item?.videoSrc) return;
+            const modalPlayer = document.getElementById('video-modal-player');
+            const modalTitle = document.getElementById('video-modal-title');
+            modalTitle.textContent = item.title || 'Video Showcase';
+            modalPlayer.src = item.videoSrc;
+            modalPlayer.currentTime = video ? video.currentTime : 0;
+            modalPlayer.play().catch(() => {});
+            modal.classList.add('active');
+        };
+
+        if (expandBtn) {
+            expandBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                openModal();
+            });
+        }
+
+        card.addEventListener('click', (e) => {
+            if (e.target.closest('.sound-btn')) return;
+            openModal();
+        });
+    });
 }
 
 function renderImpact(impact) {
-    document.getElementById('impact-track').innerHTML = impact.map(item => {
+    const el = document.getElementById('impact-track');
+    if (!el) return;
+    el.innerHTML = impact.map(item => {
         const thumbStyle = item.thumbnail ? `background-image:url('${item.thumbnail}');` : '';
         const card = `
             <div class="impact-thumb" style="${thumbStyle}">
@@ -108,7 +236,9 @@ function renderProcess(steps) {
 }
 
 function renderTestimonials(testimonials) {
-    document.getElementById('testimonials-grid').innerHTML = testimonials.map(t => `
+    const el = document.getElementById('testimonials-grid');
+    if (!el) return;
+    el.innerHTML = testimonials.map(t => `
         <div class="testimonial-card">
             <div class="testimonial-stars">${ICONS.star.repeat(5)}</div>
             <p class="testimonial-quote">"${t.quote}"</p>
@@ -155,19 +285,39 @@ function renderFaq(faq) {
 }
 
 function renderBooking(settings) {
-    const embed = document.getElementById('calendly-embed');
-    const url = settings.calendlyUrl;
-    if (!url) return;
+    const form = document.getElementById('project-brief-form');
+    const wrap = document.getElementById('booking-form-wrap');
+    if (!form || !wrap) return;
 
-    embed.dataset.url = url;
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const submitBtn = document.getElementById('bf-submit-btn');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting Brief...';
+        }
 
-    if (!document.getElementById('calendly-widget-script')) {
-        const script = document.createElement('script');
-        script.id = 'calendly-widget-script';
-        script.src = 'https://assets.calendly.com/assets/external/widget.js';
-        script.async = true;
-        document.body.appendChild(script);
-    }
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
+
+        try {
+            await fetch('https://tally.so/r/eqgVeq', {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            }).catch(() => {});
+        } catch (err) {}
+
+        wrap.innerHTML = `
+            <div class="form-success-card">
+                <div class="success-icon">✓</div>
+                <h3>Project Brief Received!</h3>
+                <p>Thank you, <strong>${data.name || 'there'}</strong>. We have received your project details for <strong>${data.company || 'your project'}</strong> and will review your brief and get in touch at <strong>${data.email}</strong> within 24 hours.</p>
+                <a href="#work" class="btn btn-primary" style="display:inline-flex; align-items:center; justify-content:center; text-decoration:none; margin-top: 10px;">Explore Our Work</a>
+            </div>
+        `;
+    });
 }
 
 function renderFooter(personal) {

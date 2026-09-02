@@ -15,6 +15,6 @@ const API = {
     async getTestimonials() { return PORTFOLIO.testimonials; },
     async getOffers() { return PORTFOLIO.offers; },
     async getFaq() { return PORTFOLIO.faq; },
-    async getSiteSettings() { return { calendlyUrl: 'https://calendly.com/suheer-alvynx/30min' }; },
+    async getSiteSettings() { return { tallyUrl: 'https://tally.so/r/eqgVeq' }; },
     async getCustomSections() { return []; },
 };

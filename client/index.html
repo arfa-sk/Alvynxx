@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Alvynx | B2B SaaS Video Editing Agency</title>
     <meta name="description" content="Alvynx makes launch videos for virality and demo videos for conversions — built for B2B SaaS companies.">
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="SpecularButton.css">
+    <link rel="stylesheet" href="style.css?v=2.1">
+    <link rel="stylesheet" href="SpecularButton.css?v=2.0">
 </head>
 <body>
     <!-- Navigation -->
@@ -301,28 +301,6 @@
         </div>
     </section>
 
-    <!-- Impact Section -->
-    <section id="impact" class="section impact">
-        <div class="container">
-            <span class="section-badge">Clear R.O.I</span>
-            <h2 class="section-title">Impact our <em>videos</em> make.</h2>
-            <div class="impact-scroll">
-                <div class="impact-track" id="impact-track"></div>
-                <div class="impact-fade-edge"></div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Testimonials Section -->
-    <section id="testimonials" class="section testimonials">
-        <div class="container">
-            <span class="section-badge">Client Testimonials</span>
-            <h2 class="section-title">Trusted by <em>20+</em> companies.</h2>
-            <p class="section-subtitle">and there's a good reason why</p>
-            <div class="testimonials-grid" id="testimonials-grid"></div>
-        </div>
-    </section>
-
     <!-- Offers / Pricing Section -->
     <section id="offers" class="section offers">
         <div class="container">
@@ -332,6 +310,7 @@
             <div class="pricing-grid" id="offers-grid"></div>
         </div>
     </section>
+
     <!-- FAQ Section -->
     <section id="faq" class="section faq">
         <div class="container">
@@ -344,9 +323,14 @@
     <!-- Booking Section -->
     <section id="booking" class="section booking">
         <div class="container">
+            <span class="section-badge">Get in Touch</span>
             <h2 class="section-title">Your business deserves more than just <em>boring, generic video ads.</em></h2>
-            <p class="section-subtitle">Book your intro call</p>
-            <div class="calendly-inline-widget" id="calendly-embed" data-url=""></div>
+            <p class="section-subtitle">Tell us about your project</p>
+            
+            <div class="tally-card-wrap">
+                <iframe data-tally-src="https://tally.so/embed/eqgVeq?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1" loading="lazy" width="100%" height="1561" frameborder="0" marginheight="0" marginwidth="0" title="Tell us about your project"></iframe>
+                <script>var d=document,w="https://tally.so/widgets/embed.js",v=function(){"undefined"!=typeof Tally?Tally.loadEmbeds():d.querySelectorAll("iframe[data-tally-src]:not([src])").forEach((function(e){e.src=e.dataset.tallySrc}))};if("undefined"!=typeof Tally)v();else if(d.querySelector('script[src="'+w+'"]')==null){var s=d.createElement("script");s.src=w,s.onload=v,s.onerror=v,d.body.appendChild(s);}</script>
+            </div>
         </div>
     </section>
 
@@ -377,6 +361,6 @@
     <script src="api.js"></script>
     <script src="script.js"></script>
     <script src="shaderBg.js"></script>
-    <script type="module" src="SpecularButton.js"></script>
+    <script type="module" src="SpecularButton.js?v=2.0"></script>
 </body>
 </html>
