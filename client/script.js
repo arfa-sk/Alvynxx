@@ -70,7 +70,7 @@ function renderWork(work) {
         if (videoSrc) {
             mediaHtml = `
                 <div class="work-video-wrapper">
-                    <video class="work-video-player" src="${videoSrc}" autoplay muted loop playsinline preload="metadata"></video>
+                    <video class="work-video-player" src="${videoSrc}" muted loop playsinline preload="metadata" disablepictureinpicture disableremoteplayback></video>
                     <div class="work-video-overlay">
                         <div class="work-video-controls">
                             <button class="work-control-btn sound-btn" title="Toggle sound" aria-label="Toggle sound">
@@ -108,10 +108,6 @@ function renderWork(work) {
             </div>
         `;
     }).join('');
-
-    grid.querySelectorAll('.work-video-player').forEach(video => {
-        video.play().catch(() => {});
-    });
 
     attachWorkVideoEvents(work);
 }
@@ -156,11 +152,48 @@ function attachWorkVideoEvents(work) {
         });
     }
 
+    const safePlay = (v) => {
+        if (!v || !v.paused) return;
+        const p = v.play();
+        if (p !== undefined) {
+            p.catch(() => {});
+        }
+    };
+
+    const safePause = (v) => {
+        if (!v || v.paused) return;
+        v.pause();
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            const video = entry.target.querySelector('.work-video-player');
+            if (!video) return;
+            if (entry.isIntersecting) {
+                safePlay(video);
+            } else {
+                safePause(video);
+            }
+        });
+    }, {
+        root: null,
+        rootMargin: '120px 0px',
+        threshold: 0.1
+    });
+
     grid.querySelectorAll('.work-card').forEach((card, index) => {
         const item = work[index];
         const video = card.querySelector('.work-video-player');
         const soundBtn = card.querySelector('.sound-btn');
         const expandBtn = card.querySelector('.expand-btn');
+
+        if (video) {
+            observer.observe(card);
+
+            card.addEventListener('mouseenter', () => {
+                safePlay(video);
+            });
+        }
 
         if (soundBtn && video) {
             soundBtn.addEventListener('click', (e) => {
