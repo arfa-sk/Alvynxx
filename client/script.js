@@ -156,7 +156,7 @@ function attachWorkVideoEvents(work) {
         if (!v || !v.paused) return;
         const p = v.play();
         if (p !== undefined) {
-            p.catch(() => {});
+            p.catch(() => { });
         }
     };
 
@@ -219,7 +219,7 @@ function attachWorkVideoEvents(work) {
             modalTitle.textContent = item.title || 'Video Showcase';
             modalPlayer.src = item.videoSrc;
             modalPlayer.currentTime = video ? video.currentTime : 0;
-            modalPlayer.play().catch(() => {});
+            modalPlayer.play().catch(() => { });
             modal.classList.add('active');
         };
 
@@ -339,8 +339,8 @@ function renderBooking(settings) {
                 mode: 'no-cors',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
-            }).catch(() => {});
-        } catch (err) {}
+            }).catch(() => { });
+        } catch (err) { }
 
         wrap.innerHTML = `
             <div class="form-success-card">

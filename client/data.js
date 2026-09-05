@@ -24,16 +24,16 @@ const PORTFOLIO = {
     // ─── Hero Section ────────────────────────────────────
     hero: {
         greeting: "B2B SaaS Video Production",
-        title: 'We make <em>launch</em> videos for virality &amp; <em>demo</em> videos for conversions.',
-        subtitle: "Alvynx helps SaaS companies turn feature launches and product walkthroughs into videos that convert — from script to final cut.",
+        title: "Make them stop. Make them understand. Make them buy.",
+        subtitle: "We produce animated VSLs and ads for SaaS and fintech brands built around attention, clarity, and conversion.",
         videoUrl: "",
     },
 
     // ─── Stats ───────────────────────────────────────────
     stats: [
-        { number: "20+", label: "Clients Served" },
-        { number: "150k+", label: "Views Generated" },
-        { number: "6", label: "Industries Served" },
+        { number: "10+", label: "Videos Produced" },
+        { number: "3+", label: "Years Editing" },
+        { number: "5+", label: "Industries" },
     ],
 
     // ─── Our Work ────────────────────────────────────────
@@ -110,10 +110,10 @@ const PORTFOLIO = {
 
     // ─── How It Works / Process ──────────────────────────
     process: [
-        { title: "Discovery and Strategy", place: "", description: "We start by getting deep into your product. One intake form is all it takes — we learn how it works, who it's for, and what makes it different. From there we define the creative direction and map out exactly what we're building together." },
-        { title: "Production", place: "", description: "Our creative team spends days inside your product — digging through reviews, competitor content, and user feedback to find exactly what your buyers care about. Script first, your approval second, storyboard third. Then our editors get to work and hand you a finished launch or demo video." },
-        { title: "Influencer Management", place: "(For Organic Launch Campaign clients only)", description: "While production is running, our team is already vetting and locking down the right creators for your launch — people whose audience matches your exact buyer. By the time your video is ready, your distribution network is already in place." },
-        { title: "Launch Day", place: "(For Organic Launch Campaign clients only)", description: "We coordinate your video release, your creator network, and your personal network — investors, teammates, early users — into one synchronized launch moment. Everything drops together so the algorithm sees a spike, and that spike is what turns a good video into a viral one." },
+        { title: "Discovery", place: "", description: "One call. We learn your product, your users, and what's not landing." },
+        { title: "Script", place: "", description: "Built to convert, not describe. You approve the idea before you see a frame." },
+        { title: "Design & Animation", place: "", description: "Storyboard locked first. Then animated, frame by frame. No mid-project surprises." },
+        { title: "Delivery", place: "", description: "Platform-ready cuts for landing page, ads, socials. Ready to launch, not just finished." },
     ],
 
     // ─── Testimonials ────────────────────────────────────
