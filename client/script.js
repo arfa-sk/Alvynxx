@@ -298,49 +298,14 @@ function renderOffers(offers) {
         <div class="pricing-card ${o.isRecommended ? 'recommended' : ''}">
             <div class="pricing-card-header">
                 <div class="pricing-header-top">
-                    <h3 class="pricing-plan-title">${o.title}</h3>
+                    <h3>${o.title}</h3>
                     ${o.isRecommended ? '<span class="pricing-badge">Recommended</span>' : ''}
                 </div>
-                ${o.type ? `<div class="pricing-type-pill">${o.type}</div>` : ''}
             </div>
-
-            <div class="pricing-specs-list">
-                ${o.mainVideo ? `
-                <div class="pricing-spec-row">
-                    <span class="pricing-spec-label">Main video</span>
-                    <p class="pricing-spec-value">${o.mainVideo}</p>
-                </div>
-                ` : ''}
-
-                ${o.adCreatives ? `
-                <div class="pricing-spec-row">
-                    <span class="pricing-spec-label">Ad creatives</span>
-                    <p class="pricing-spec-value">${o.adCreatives}</p>
-                </div>
-                ` : ''}
-
-                ${o.revisions ? `
-                <div class="pricing-spec-row">
-                    <span class="pricing-spec-label">Revisions</span>
-                    <p class="pricing-spec-value">${o.revisions}</p>
-                </div>
-                ` : ''}
-
-                ${o.turnaround ? `
-                <div class="pricing-spec-row">
-                    <span class="pricing-spec-label">Turnaround</span>
-                    <p class="pricing-spec-value">${o.turnaround}</p>
-                </div>
-                ` : ''}
-
-                ${o.bestFor ? `
-                <div class="pricing-spec-row pricing-best-row">
-                    <span class="pricing-spec-label">Best for</span>
-                    <p class="pricing-spec-value">${o.bestFor}</p>
-                </div>
-                ` : ''}
-            </div>
-
+            <p class="pricing-desc">${o.description || ''}</p>
+            <ul class="pricing-features">
+                ${(o.features || []).map(f => `<li>${f}</li>`).join('')}
+            </ul>
             <a href="${o.ctaLink || '#booking'}" class="btn ${o.isRecommended ? 'btn-primary' : 'btn-outline'} pricing-cta">${o.ctaText || 'Book a Call'}</a>
         </div>
     `).join('');
@@ -481,19 +446,7 @@ function applyGradients(settings) {
         }
     });
 
-    // Update nav visibility
-    const navLinks = document.querySelector('.nav-links');
-    if (navLinks && settings.sections) {
-        const labelMap = { work: 'Our Work', process: 'Process', offers: 'Pricing' };
-        let navHtml = '';
-        (settings.sectionOrder || Object.keys(labelMap)).forEach(key => {
-            if (!labelMap[key]) return;
-            const cfg = settings.sections[key];
-            if (cfg && cfg.enabled === false) return;
-            navHtml += `<li><a href="#${key}">${labelMap[key]}</a></li>`;
-        });
-        navLinks.innerHTML = navHtml;
-    }
+    // Nav links are defined statically in HTML with active page states.
 }
 
 // ─── Custom Section Renderer ──────────────────────────────
@@ -666,11 +619,87 @@ function initAnimations() {
 
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        const href = this.getAttribute('href');
+        if (!href || href === '#' || href.length <= 1) return;
+        try {
+            const target = document.querySelector(href);
+            if (target) {
+                e.preventDefault();
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        } catch (err) {
+            // Ignore invalid selector
+        }
     });
 });
+
+// ─── Short-Form & Service Videos ──────────────────────────
+function initShortFormFeatures() {
+    // Service Cards Video Interaction
+    const serviceCards = document.querySelectorAll('.service-card');
+    serviceCards.forEach(card => {
+        const video = card.querySelector('video');
+        const playBtn = card.querySelector('.service-play-btn');
+        const mediaWrap = card.querySelector('.service-media-wrap');
+
+        if (!video) return;
+
+        // Auto-play on hover
+        card.addEventListener('mouseenter', () => {
+            const playPromise = video.play();
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    if (playBtn) playBtn.classList.add('playing');
+                }).catch(() => {});
+            }
+        });
+
+        card.addEventListener('mouseleave', () => {
+            video.pause();
+            if (playBtn) playBtn.classList.remove('playing');
+        });
+
+        if (mediaWrap) {
+            mediaWrap.addEventListener('click', () => {
+                if (video.paused) {
+                    video.play();
+                    if (playBtn) playBtn.classList.add('playing');
+                } else {
+                    video.pause();
+                    if (playBtn) playBtn.classList.remove('playing');
+                }
+            });
+        }
+    });
+
+    // Reel Sound Toggle
+    const reelCards = document.querySelectorAll('.reel-card');
+    reelCards.forEach(card => {
+        const video = card.querySelector('video');
+        const soundBtn = card.querySelector('.sound-toggle-btn');
+        if (!video || !soundBtn) return;
+
+        // Auto-play muted on hover
+        card.addEventListener('mouseenter', () => {
+            video.play().catch(() => {});
+        });
+
+        card.addEventListener('mouseleave', () => {
+            video.pause();
+        });
+
+        soundBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            video.muted = !video.muted;
+            const iconMuted = soundBtn.querySelector('.icon-muted');
+            const iconOn = soundBtn.querySelector('.icon-on');
+            if (iconMuted && iconOn) {
+                iconMuted.style.display = video.muted ? 'block' : 'none';
+                iconOn.style.display = video.muted ? 'none' : 'block';
+            }
+        });
+    });
+}
 
 // ─── Boot ─────────────────────────────────────────────────
 function initFolderScroll() {
@@ -737,9 +766,9 @@ function initFolderScroll() {
     });
 }
 
-
-
 document.addEventListener('DOMContentLoaded', () => {
     init();
     initFolderScroll();
+    initShortFormFeatures();
 });
+
