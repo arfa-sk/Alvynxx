@@ -46,10 +46,15 @@ function buildVideoEmbed(url) {
 // ─── Renderers ────────────────────────────────────────────
 
 function renderHero(hero, stats) {
-    document.getElementById('hero-greeting').textContent = hero.greeting;
-    document.getElementById('hero-title').innerHTML = hero.title;
-    document.getElementById('hero-subtitle').textContent = hero.subtitle;
-    document.getElementById('hero-video-wrap').innerHTML = buildVideoEmbed(hero.videoUrl);
+    const greetingEl = document.getElementById('hero-greeting');
+    if (!greetingEl) return;
+    greetingEl.textContent = hero.greeting;
+    const titleEl = document.getElementById('hero-title');
+    if (titleEl) titleEl.innerHTML = hero.title;
+    const subtitleEl = document.getElementById('hero-subtitle');
+    if (subtitleEl) subtitleEl.textContent = hero.subtitle;
+    const videoWrapEl = document.getElementById('hero-video-wrap');
+    if (videoWrapEl) videoWrapEl.innerHTML = buildVideoEmbed(hero.videoUrl);
 
     const statsEl = document.getElementById('hero-stats');
     if (statsEl) {
@@ -287,20 +292,64 @@ function renderTestimonials(testimonials) {
 }
 
 function renderOffers(offers) {
-    document.getElementById('offers-grid').innerHTML = offers.map(o => `
-        <div class="pricing-card">
-            <h3>${o.title}</h3>
-            <p class="pricing-desc">${o.description || ''}</p>
-            <ul class="pricing-features">
-                ${(o.features || []).map(f => `<li>${f}</li>`).join('')}
-            </ul>
-            <a href="${o.ctaLink || '#booking'}" class="btn btn-outline pricing-cta">${o.ctaText || 'I need this'}</a>
+    const grid = document.getElementById('offers-grid');
+    if (!grid) return;
+    grid.innerHTML = offers.map(o => `
+        <div class="pricing-card ${o.isRecommended ? 'recommended' : ''}">
+            <div class="pricing-card-header">
+                <div class="pricing-header-top">
+                    <h3 class="pricing-plan-title">${o.title}</h3>
+                    ${o.isRecommended ? '<span class="pricing-badge">Recommended</span>' : ''}
+                </div>
+                ${o.type ? `<div class="pricing-type-pill">${o.type}</div>` : ''}
+            </div>
+
+            <div class="pricing-specs-list">
+                ${o.mainVideo ? `
+                <div class="pricing-spec-row">
+                    <span class="pricing-spec-label">Main video</span>
+                    <p class="pricing-spec-value">${o.mainVideo}</p>
+                </div>
+                ` : ''}
+
+                ${o.adCreatives ? `
+                <div class="pricing-spec-row">
+                    <span class="pricing-spec-label">Ad creatives</span>
+                    <p class="pricing-spec-value">${o.adCreatives}</p>
+                </div>
+                ` : ''}
+
+                ${o.revisions ? `
+                <div class="pricing-spec-row">
+                    <span class="pricing-spec-label">Revisions</span>
+                    <p class="pricing-spec-value">${o.revisions}</p>
+                </div>
+                ` : ''}
+
+                ${o.turnaround ? `
+                <div class="pricing-spec-row">
+                    <span class="pricing-spec-label">Turnaround</span>
+                    <p class="pricing-spec-value">${o.turnaround}</p>
+                </div>
+                ` : ''}
+
+                ${o.bestFor ? `
+                <div class="pricing-spec-row pricing-best-row">
+                    <span class="pricing-spec-label">Best for</span>
+                    <p class="pricing-spec-value">${o.bestFor}</p>
+                </div>
+                ` : ''}
+            </div>
+
+            <a href="${o.ctaLink || '#booking'}" class="btn ${o.isRecommended ? 'btn-primary' : 'btn-outline'} pricing-cta">${o.ctaText || 'Book a Call'}</a>
         </div>
     `).join('');
 }
 
 function renderFaq(faq) {
-    document.getElementById('faq-list').innerHTML = faq.map((f, i) => `
+    const list = document.getElementById('faq-list');
+    if (!list) return;
+    list.innerHTML = faq.map((f, i) => `
         <div class="faq-item">
             <button class="faq-question" data-index="${i}">
                 <span>${f.question}</span>

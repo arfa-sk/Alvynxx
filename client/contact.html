@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Alvynx | B2B SaaS Video Production</title>
+    <meta name="description"
+        content="Get in touch with Alvynx. We produce animated VSLs and ads for SaaS and fintech brands built around attention, clarity, and conversion.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@1,8..60,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=2.3">
+    <link rel="stylesheet" href="SpecularButton.css?v=2.0">
+</head>
+
+<body class="contact-page">
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo" id="nav-logo"><img src="assest/logo.png" alt="Alvynx"
+                    style="height: 32px; width: auto;"></a>
+            <ul class="nav-links">
+                <li><a href="index.html#work">Our Work</a></li>
+                <li><a href="index.html#process">Process</a></li>
+                <li><a href="index.html#offers">Pricing</a></li>
+                <li><a href="contact.html" class="active">Contact</a></li>
+            </ul>
+            <a href="#tally-form-card" class="nav-cta" data-specular-button>Book a Call</a>
+            <button class="mobile-menu-btn" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Contact Section -->
+    <main class="contact-main">
+        <div class="contact-hero-glow"></div>
+        <div class="container">
+            <div class="contact-header">
+                <span class="section-badge">Get in Touch</span>
+                <h1 class="section-title">Let's build videos that <em>convert</em>.</h1>
+                <p class="section-subtitle">Drop your details below or explore our global reach. We typically respond within 24 hours.</p>
+            </div>
+
+            <div class="contact-layout-grid">
+                <!-- Left: Globe Animation -->
+                <div class="contact-globe-panel">
+                    <div class="globe-canvas-wrap" id="globe-canvas-wrap">
+                        <canvas></canvas>
+                    </div>
+                </div>
+
+                <!-- Right: Tally Form Card -->
+                <div class="contact-form-panel" id="tally-form-card">
+                    <div class="tally-card-wrap">
+                        <iframe
+                            data-tally-src="https://tally.so/embed/eqgVeq?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1"
+                            loading="lazy" width="100%" height="580" frameborder="0" marginheight="0" marginwidth="0"
+                            title="Tell us about your project"></iframe>
+                        <script>var d = document, w = "https://tally.so/widgets/embed.js", v = function () { "undefined" != typeof Tally ? Tally.loadEmbeds() : d.querySelectorAll("iframe[data-tally-src]:not([src])").forEach((function (e) { e.src = e.dataset.tallySrc })) }; if ("undefined" != typeof Tally) v(); else if (d.querySelector('script[src="' + w + '"]') == null) { var s = d.createElement("script"); s.src = w, s.onload = v, s.onerror = v, d.body.appendChild(s); }</script>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container footer-content">
+            <div class="footer-left">
+                <a href="index.html" class="nav-logo" id="footer-logo"><img src="assest/logo.png" alt="Alvynx"
+                        style="height: 32px; width: auto;"></a>
+                <div class="footer-links">
+                    <a href="index.html#work">Our Work</a>
+                    <a href="index.html#process">Process</a>
+                    <a href="index.html#offers">Pricing</a>
+                    <a href="contact.html">Contact</a>
+                </div>
+                <div class="footer-socials" id="footer-socials"></div>
+            </div>
+            <div class="footer-right">
+                <p class="footer-location" id="footer-location"></p>
+                <a id="footer-email" href=""></a>
+                <a id="footer-phone" href=""></a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Alvynx. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="data.js"></script>
+    <script src="api.js"></script>
+    <script type="module" src="SpecularButton.js?v=2.0"></script>
+    <script src="globe.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>
