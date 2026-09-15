@@ -131,7 +131,10 @@ function attachWorkVideoEvents(work) {
                 <button class="video-modal-close" id="video-modal-close-btn" aria-label="Close modal">
                     <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </button>
-                <video id="video-modal-player" class="video-modal-video" controls autoplay playsinline></video>
+                <div class="video-modal-loader" id="video-modal-spinner">
+                    <div class="modal-spinner"></div>
+                </div>
+                <video id="video-modal-player" class="video-modal-video" controls playsinline preload="auto"></video>
                 <div class="video-modal-header">
                     <div class="video-modal-title" id="video-modal-title"></div>
                 </div>
@@ -141,11 +144,14 @@ function attachWorkVideoEvents(work) {
 
         const closeBtn = document.getElementById('video-modal-close-btn');
         const modalPlayer = document.getElementById('video-modal-player');
+        const modalSpinner = document.getElementById('video-modal-spinner');
 
         const closeModal = () => {
             modal.classList.remove('active');
             modalPlayer.pause();
-            modalPlayer.src = '';
+            modalPlayer.removeAttribute('src');
+            modalPlayer.load();
+            if (modalSpinner) modalSpinner.style.display = 'none';
         };
 
         closeBtn.addEventListener('click', closeModal);
@@ -158,7 +164,7 @@ function attachWorkVideoEvents(work) {
     }
 
     const safePlay = (v) => {
-        if (!v || !v.paused) return;
+        if (!v) return;
         const p = v.play();
         if (p !== undefined) {
             p.catch(() => { });
@@ -170,22 +176,6 @@ function attachWorkVideoEvents(work) {
         v.pause();
     };
 
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            const video = entry.target.querySelector('.work-video-player');
-            if (!video) return;
-            if (entry.isIntersecting) {
-                safePlay(video);
-            } else {
-                safePause(video);
-            }
-        });
-    }, {
-        root: null,
-        rootMargin: '120px 0px',
-        threshold: 0.1
-    });
-
     grid.querySelectorAll('.work-card').forEach((card, index) => {
         const item = work[index];
         const video = card.querySelector('.work-video-player');
@@ -193,10 +183,16 @@ function attachWorkVideoEvents(work) {
         const expandBtn = card.querySelector('.expand-btn');
 
         if (video) {
-            observer.observe(card);
-
+            // Hover-only playback: ensures only 1 video plays at a time for maximum smoothness
             card.addEventListener('mouseenter', () => {
+                grid.querySelectorAll('.work-video-player').forEach(v => {
+                    if (v !== video) safePause(v);
+                });
                 safePlay(video);
+            });
+
+            card.addEventListener('mouseleave', () => {
+                safePause(video);
             });
         }
 
@@ -219,13 +215,42 @@ function attachWorkVideoEvents(work) {
 
         const openModal = () => {
             if (!item?.videoSrc) return;
+            // 1. Immediately pause all background videos to free hardware decoders
+            grid.querySelectorAll('.work-video-player').forEach(v => safePause(v));
+
             const modalPlayer = document.getElementById('video-modal-player');
             const modalTitle = document.getElementById('video-modal-title');
+            const modalSpinner = document.getElementById('video-modal-spinner');
+
             modalTitle.textContent = item.title || 'Video Showcase';
-            modalPlayer.src = item.videoSrc;
-            modalPlayer.currentTime = video ? video.currentTime : 0;
-            modalPlayer.play().catch(() => { });
             modal.classList.add('active');
+
+            if (modalSpinner) modalSpinner.style.display = 'flex';
+
+            // Only change src if needed
+            if (!modalPlayer.src.endsWith(item.videoSrc)) {
+                modalPlayer.src = item.videoSrc;
+            }
+
+            modalPlayer.oncanplay = () => {
+                if (modalSpinner) modalSpinner.style.display = 'none';
+                modalPlayer.play().catch(() => {});
+            };
+
+            modalPlayer.onplaying = () => {
+                if (modalSpinner) modalSpinner.style.display = 'none';
+            };
+
+            modalPlayer.onwaiting = () => {
+                if (modalSpinner) modalSpinner.style.display = 'flex';
+            };
+
+            const playPromise = modalPlayer.play();
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    if (modalSpinner) modalSpinner.style.display = 'none';
+                }).catch(() => {});
+            }
         };
 
         if (expandBtn) {

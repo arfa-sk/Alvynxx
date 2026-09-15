@@ -669,6 +669,30 @@ img {
     transform: scale(1);
 }
 
+.video-modal-loader {
+    position: absolute;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 5;
+    pointer-events: none;
+}
+
+.modal-spinner {
+    width: 44px;
+    height: 44px;
+    border: 3px solid rgba(255, 255, 255, 0.15);
+    border-top-color: #ff4d4d;
+    border-radius: 50%;
+    animation: modalSpin 0.8s linear infinite;
+}
+
+@keyframes modalSpin {
+    to { transform: rotate(360deg); }
+}
+
 .video-modal-video {
     width: 100%;
     aspect-ratio: 16 / 9;
