@@ -15,10 +15,10 @@ const PORTFOLIO = {
         email: "alwan@alvynx.com",
         phone: "",
         location: "Remote / Worldwide",
-        instagram: "https://instagram.com/alvynx",
-        youtube: "https://youtube.com/@alvynx",
-        twitter: "https://twitter.com/alvynx",
-        linkedin: "https://linkedin.com/company/alvynx",
+        instagram: "https://www.instagram.com/alwan.visuals?stkn=czRnYTcxZnd6bG41",
+        youtube: "",
+        twitter: "",
+        linkedin: "https://www.linkedin.com/in/alwankhan/",
     },
 
     // ─── Hero Section ────────────────────────────────────
