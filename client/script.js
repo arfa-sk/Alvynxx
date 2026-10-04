@@ -643,9 +643,9 @@ function initMobileDrawer() {
     const isContact = currentPath.includes('contact');
 
     const links = [
-        { label: 'Our Work', href: isShortForm || isContact ? 'index.html#work' : '#work' },
-        { label: 'Process', href: isShortForm || isContact ? 'index.html#process' : '#process' },
-        { label: 'Pricing', href: isShortForm || isContact ? 'index.html#offers' : '#offers' },
+        { label: 'Our Work', href: isShortForm || isContact ? '/#work' : '#work' },
+        { label: 'Process', href: isShortForm || isContact ? '/#process' : '#process' },
+        { label: 'Pricing', href: isShortForm || isContact ? '/#offers' : '#offers' },
         { label: 'Contact', href: 'contact.html' },
     ];
 
@@ -655,7 +655,7 @@ function initMobileDrawer() {
 
     drawerPanel.innerHTML = `
         <div class="mobile-drawer-header">
-            <a href="index.html" class="drawer-logo">
+            <a href="/" class="drawer-logo">
                 <img src="assest/logo.png" alt="Alvynx" style="height: 26px; width: auto;">
             </a>
             <button class="mobile-drawer-close" aria-label="Close menu">
@@ -671,7 +671,7 @@ function initMobileDrawer() {
             </nav>
         </div>
         <div class="mobile-drawer-footer">
-            <a href="${isShortForm || isContact ? 'index.html#booking' : '#booking'}" class="btn btn-primary drawer-cta-btn" data-specular-button data-sb-size="lg">Request a project</a>
+            <a href="${isShortForm || isContact ? '/#booking' : '#booking'}" class="btn btn-primary drawer-cta-btn" data-specular-button data-sb-size="lg">Request a project</a>
             <a href="mailto:alwan@alvynx.com" class="drawer-email">alwan@alvynx.com</a>
         </div>
     `;

@@ -209,12 +209,25 @@ const PORTFOLIO = {
 
     // ─── FAQ ─────────────────────────────────────────────
     faq: [
-        { question: "What is your Organic Launch Campaign?", answer: "It's a launch video paired with a network of creators and your own personal network, coordinated to release at the same time — so the algorithm sees a spike in activity around your launch." },
-        { question: "How is that different from just a launch video?", answer: "A launch video on its own still needs an audience. The Organic Launch Campaign adds the distribution — vetted creators and a synchronized release — so the video actually gets seen." },
-        { question: "Do you offer voiceovers in different accents or languages?", answer: "Yes — let us know the accent, language, or tone you're going for and we'll match a voiceover to it." },
-        { question: "How long will it take?", answer: "Most launch and demo videos are delivered within 1-2 weeks of final script approval, depending on complexity and revisions." },
-        { question: "Do you offer monthly packages?", answer: "Yes, the Bulk Creative Videos package is built for teams that need a steady stream of videos every month at a discounted per-video rate." },
-        { question: "How do you learn about my product?", answer: "A short intake form to start, then our team digs into your product, competitors, and user feedback before we ever write a script." },
-        { question: "Do you have a physical office or are you fully remote?", answer: "We're fully remote and work with SaaS teams worldwide." },
+        {
+            question: "How long does a 60-second video take to deliver?",
+            answer: "Standard turnaround for a 60-second video is typically 1 to 2 weeks, depending on the complexity of the motion design, script, and assets provided."
+        },
+        {
+            question: "Do you offer monthly retainer packages?",
+            answer: "Yes! We offer flexible monthly retainers based on your continuous video needs. We can discuss your expected volume on call to tailor a custom package."
+        },
+        {
+            question: "How do you learn about my product before editing?",
+            answer: "We dive deep into your brand by researching your product, target audience, and market independently. We'll also get some details from you during our onboarding call."
+        },
+        {
+            question: "What if I need revisions on the video?",
+            answer: "Every project includes dedicated rounds of revisions typically 2-3 revisions to ensure the final edit aligns perfectly with your vision and brand guidelines."
+        },
+        {
+            question: "What do I need to provide to get started?",
+            answer: "Just your product details, brand assets (logos, UI, fonts), and a script if you have one. If you don't have a script, We will built script from scratch."
+        },
     ],
 };
