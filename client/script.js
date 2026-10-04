@@ -75,7 +75,7 @@ function renderWork(work) {
         if (videoSrc) {
             mediaHtml = `
                 <div class="work-video-wrapper">
-                    <video class="work-video-player" src="${videoSrc}" muted loop playsinline preload="metadata" disablepictureinpicture disableremoteplayback></video>
+                    <video class="work-video-player" src="${videoSrc}" muted autoplay loop playsinline preload="auto" disablepictureinpicture disableremoteplayback></video>
                     <div class="work-video-overlay">
                         <div class="work-video-controls">
                             <button class="work-control-btn sound-btn" title="Toggle sound" aria-label="Toggle sound">
@@ -149,9 +149,14 @@ function attachWorkVideoEvents(work) {
         const closeModal = () => {
             modal.classList.remove('active');
             modalPlayer.pause();
-            modalPlayer.removeAttribute('src');
-            modalPlayer.load();
             if (modalSpinner) modalSpinner.style.display = 'none';
+            // Resume grid playback for visible videos smoothly
+            grid.querySelectorAll('.work-video-player').forEach(v => {
+                const rect = v.getBoundingClientRect();
+                if (rect.bottom > -100 && rect.top < window.innerHeight + 100) {
+                    safePlay(v);
+                }
+            });
         };
 
         closeBtn.addEventListener('click', closeModal);
@@ -176,6 +181,18 @@ function attachWorkVideoEvents(work) {
         v.pause();
     };
 
+    // Smooth visibility observer: keeps visible cards playing all the time with zero lag
+    const videoObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            const v = entry.target;
+            if (entry.isIntersecting) {
+                safePlay(v);
+            } else {
+                safePause(v);
+            }
+        });
+    }, { rootMargin: '250px 0px', threshold: 0.05 });
+
     grid.querySelectorAll('.work-card').forEach((card, index) => {
         const item = work[index];
         const video = card.querySelector('.work-video-player');
@@ -183,17 +200,9 @@ function attachWorkVideoEvents(work) {
         const expandBtn = card.querySelector('.expand-btn');
 
         if (video) {
-            // Hover-only playback: ensures only 1 video plays at a time for maximum smoothness
-            card.addEventListener('mouseenter', () => {
-                grid.querySelectorAll('.work-video-player').forEach(v => {
-                    if (v !== video) safePause(v);
-                });
-                safePlay(video);
-            });
-
-            card.addEventListener('mouseleave', () => {
-                safePause(video);
-            });
+            video.muted = true;
+            videoObserver.observe(video);
+            safePlay(video);
         }
 
         if (soundBtn && video) {
@@ -201,11 +210,16 @@ function attachWorkVideoEvents(work) {
                 e.stopPropagation();
                 const willMute = !video.muted;
                 if (!willMute) {
+                    // Mute other videos so sounds don't overlap
                     grid.querySelectorAll('.work-video-player').forEach(v => {
-                        v.muted = true;
+                        if (v !== video) v.muted = true;
                     });
-                    grid.querySelectorAll('.sound-icon-muted').forEach(i => i.style.display = 'block');
-                    grid.querySelectorAll('.sound-icon-on').forEach(i => i.style.display = 'none');
+                    grid.querySelectorAll('.sound-btn').forEach(btn => {
+                        if (btn !== soundBtn) {
+                            btn.querySelector('.sound-icon-muted').style.display = 'block';
+                            btn.querySelector('.sound-icon-on').style.display = 'none';
+                        }
+                    });
                 }
                 video.muted = willMute;
                 soundBtn.querySelector('.sound-icon-muted').style.display = willMute ? 'block' : 'none';
@@ -215,8 +229,7 @@ function attachWorkVideoEvents(work) {
 
         const openModal = () => {
             if (!item?.videoSrc) return;
-            // 1. Immediately pause all background videos to free hardware decoders
-            grid.querySelectorAll('.work-video-player').forEach(v => safePause(v));
+            const currentVideoTime = video ? video.currentTime : 0;
 
             const modalPlayer = document.getElementById('video-modal-player');
             const modalTitle = document.getElementById('video-modal-title');
@@ -225,31 +238,42 @@ function attachWorkVideoEvents(work) {
             modalTitle.textContent = item.title || 'Video Showcase';
             modal.classList.add('active');
 
-            if (modalSpinner) modalSpinner.style.display = 'flex';
-
-            // Only change src if needed
-            if (!modalPlayer.src.endsWith(item.videoSrc)) {
+            const resolvedSrc = new URL(item.videoSrc, window.location.href).href;
+            if (modalPlayer.src !== resolvedSrc) {
+                if (modalSpinner) modalSpinner.style.display = 'flex';
                 modalPlayer.src = item.videoSrc;
             }
 
-            modalPlayer.oncanplay = () => {
+            try {
+                if (currentVideoTime > 0) {
+                    modalPlayer.currentTime = currentVideoTime;
+                }
+            } catch (_) {}
+
+            modalPlayer.muted = false;
+
+            const startPlayback = () => {
+                const p = modalPlayer.play();
+                if (p !== undefined) {
+                    p.then(() => {
+                        if (modalSpinner) modalSpinner.style.display = 'none';
+                    }).catch(() => {
+                        // Fallback if browser requires muted autoplay
+                        modalPlayer.muted = true;
+                        modalPlayer.play().catch(() => {});
+                        if (modalSpinner) modalSpinner.style.display = 'none';
+                    });
+                }
+            };
+
+            if (modalPlayer.readyState >= 2) {
                 if (modalSpinner) modalSpinner.style.display = 'none';
-                modalPlayer.play().catch(() => {});
-            };
-
-            modalPlayer.onplaying = () => {
-                if (modalSpinner) modalSpinner.style.display = 'none';
-            };
-
-            modalPlayer.onwaiting = () => {
-                if (modalSpinner) modalSpinner.style.display = 'flex';
-            };
-
-            const playPromise = modalPlayer.play();
-            if (playPromise !== undefined) {
-                playPromise.then(() => {
+                startPlayback();
+            } else {
+                modalPlayer.onloadeddata = () => {
                     if (modalSpinner) modalSpinner.style.display = 'none';
-                }).catch(() => {});
+                    startPlayback();
+                };
             }
         };
 
@@ -261,7 +285,7 @@ function attachWorkVideoEvents(work) {
         }
 
         card.addEventListener('click', (e) => {
-            if (e.target.closest('.sound-btn')) return;
+            if (e.target.closest('.work-control-btn')) return;
             openModal();
         });
     });
@@ -331,7 +355,7 @@ function renderOffers(offers) {
             <ul class="pricing-features">
                 ${(o.features || []).map(f => `<li>${f}</li>`).join('')}
             </ul>
-            <a href="${o.ctaLink || '#booking'}" class="btn ${o.isRecommended ? 'btn-primary' : 'btn-outline'} pricing-cta">${o.ctaText || 'Book a Call'}</a>
+            <a href="${o.ctaLink || '#booking'}" class="btn ${o.isRecommended ? 'btn-primary' : 'btn-outline'} pricing-cta">${o.ctaText || 'Request a project'}</a>
         </div>
     `).join('');
 }
@@ -400,8 +424,15 @@ function renderFooter(personal) {
     footerEmail.textContent = personal.email;
 
     const footerPhone = document.getElementById('footer-phone');
-    footerPhone.href = `tel:${(personal.phone || '').replace(/[^+\d]/g, '')}`;
-    footerPhone.textContent = personal.phone;
+    if (footerPhone) {
+        if (personal.phone) {
+            footerPhone.href = `tel:${(personal.phone || '').replace(/[^+\d]/g, '')}`;
+            footerPhone.textContent = personal.phone;
+            footerPhone.style.display = '';
+        } else {
+            footerPhone.style.display = 'none';
+        }
+    }
 
     const socials = [
         personal.instagram && `<a href="${personal.instagram}" target="_blank" rel="noopener" aria-label="Instagram">${ICONS.instagram}</a>`,
@@ -577,43 +608,117 @@ async function init() {
 // ─── Navbar Scroll ────────────────────────────────────────
 
 const navbar = document.querySelector('.navbar');
-window.addEventListener('scroll', () => {
-    navbar.classList.toggle('scrolled', window.scrollY > 50);
-});
+if (navbar) {
+    let isScrolled = null;
+    const handleScroll = () => {
+        const scrolled = window.scrollY > 40;
+        if (scrolled !== isScrolled) {
+            isScrolled = scrolled;
+            navbar.classList.toggle('scrolled', isScrolled);
+        }
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+}
 
-// ─── Mobile Menu ──────────────────────────────────────────
+// ─── Mobile Menu (Sleek Slider Drawer) ─────────────────────
 
 const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
-let menuOverlay = null;
+let drawerBackdrop = null;
+let drawerPanel = null;
 
-mobileMenuBtn.addEventListener('click', () => {
-    if (!menuOverlay) {
-        menuOverlay = document.createElement('div');
-        menuOverlay.className = 'mobile-nav-overlay';
-        // Mirror the desktop nav links dynamically
-        const desktopLinks = document.querySelectorAll('.nav-links a');
-        const linksHtml = Array.from(desktopLinks).map(a => `<a href="${a.getAttribute('href')}">${a.textContent}</a>`).join('');
-        menuOverlay.innerHTML = `
-            <button class="mobile-nav-close">&times;</button>
-            ${linksHtml}
-            <a href="#booking">Book a Call</a>
-        `;
-        document.body.appendChild(menuOverlay);
-        menuOverlay.querySelector('.mobile-nav-close').addEventListener('click', closeMenu);
-        menuOverlay.querySelectorAll('a').forEach(link => link.addEventListener('click', closeMenu));
-    }
-    requestAnimationFrame(() => {
-        menuOverlay.classList.add('active');
-        document.body.style.overflow = 'hidden';
-    });
-});
+function initMobileDrawer() {
+    if (!mobileMenuBtn || drawerPanel) return;
 
-function closeMenu() {
-    if (menuOverlay) {
-        menuOverlay.classList.remove('active');
+    drawerBackdrop = document.createElement('div');
+    drawerBackdrop.className = 'mobile-drawer-backdrop';
+    drawerBackdrop.id = 'mobile-drawer-backdrop';
+
+    drawerPanel = document.createElement('div');
+    drawerPanel.className = 'mobile-drawer';
+    drawerPanel.id = 'mobile-drawer';
+
+    const currentPath = window.location.pathname.toLowerCase();
+    const isShortForm = currentPath.includes('short-form');
+    const isContact = currentPath.includes('contact');
+
+    const links = [
+        { label: 'Our Work', href: isShortForm || isContact ? 'index.html#work' : '#work' },
+        { label: 'Process', href: isShortForm || isContact ? 'index.html#process' : '#process' },
+        { label: 'Pricing', href: isShortForm || isContact ? 'index.html#offers' : '#offers' },
+        { label: 'Contact', href: 'contact.html' },
+    ];
+
+    const linksHtml = links.map(link => `
+        <a href="${link.href}" class="drawer-link">${link.label}</a>
+    `).join('');
+
+    drawerPanel.innerHTML = `
+        <div class="mobile-drawer-header">
+            <a href="index.html" class="drawer-logo">
+                <img src="assest/logo.png" alt="Alvynx" style="height: 26px; width: auto;">
+            </a>
+            <button class="mobile-drawer-close" aria-label="Close menu">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+        <div class="mobile-drawer-body">
+            <nav class="drawer-nav">
+                ${linksHtml}
+            </nav>
+        </div>
+        <div class="mobile-drawer-footer">
+            <a href="${isShortForm || isContact ? 'index.html#booking' : '#booking'}" class="btn btn-primary drawer-cta-btn" data-specular-button data-sb-size="lg">Request a project</a>
+            <a href="mailto:alwan@alvynx.com" class="drawer-email">alwan@alvynx.com</a>
+        </div>
+    `;
+
+    document.body.appendChild(drawerBackdrop);
+    document.body.appendChild(drawerPanel);
+    if (window.initSpecularButtons) window.initSpecularButtons();
+
+    const closeDrawer = () => {
+        drawerBackdrop.classList.remove('active');
+        drawerPanel.classList.remove('active');
+        mobileMenuBtn.classList.remove('active');
         document.body.style.overflow = '';
-    }
+    };
+
+    const openDrawer = () => {
+        drawerBackdrop.classList.add('active');
+        drawerPanel.classList.add('active');
+        mobileMenuBtn.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        if (window.initSpecularButtons) setTimeout(window.initSpecularButtons, 50);
+    };
+
+    mobileMenuBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (drawerPanel.classList.contains('active')) {
+            closeDrawer();
+        } else {
+            openDrawer();
+        }
+    });
+
+    drawerBackdrop.addEventListener('click', closeDrawer);
+    drawerPanel.querySelector('.mobile-drawer-close').addEventListener('click', closeDrawer);
+    drawerPanel.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+            closeDrawer();
+        });
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && drawerPanel.classList.contains('active')) {
+            closeDrawer();
+        }
+    });
 }
+initMobileDrawer();
 
 // ─── Scroll Animations ───────────────────────────────────
 
@@ -739,32 +844,47 @@ function initFolderScroll() {
 
     if (!track || !folderFlap || !folderBase) return;
 
-    window.addEventListener('scroll', () => {
+    let ticking = false;
+
+    function updateFolder() {
         const rect = track.getBoundingClientRect();
         const windowHeight = window.innerHeight;
+        const windowWidth = window.innerWidth;
 
         let progress = (windowHeight / 2 - rect.top) / (rect.height - windowHeight / 2);
         progress = Math.max(0, Math.min(1, progress));
         const easeProgress = progress < 0.5 ? 4 * progress * progress * progress : 1 - Math.pow(-2 * progress + 2, 3) / 2;
 
-        // Drop the folder slightly down (only happens in the second half of the scroll)
-        // This ensures cards pop out first, THEN folder drops just enough to sit below them
-        const dropProgress = Math.max(0, (easeProgress - 0.5) * 2.0); // 0.0 to 1.0 during the second half
-        const dropAmount = dropProgress * 120; // Drop distance (120 local px = 240 visual px)
+        const dropProgress = Math.max(0, (easeProgress - 0.5) * 2.0);
+        
+        // Responsive drop amount: smaller drop on mobile so folder doesn't slide too far down
+        const maxDrop = windowWidth <= 480 ? 60 : (windowWidth <= 768 ? 85 : 120);
+        const dropAmount = dropProgress * maxDrop;
 
-        // We only translate the folder down. We DO NOT fade its opacity, 
-        // because the cards are inside it and would disappear too!
         folderBase.style.transform = `translateY(${dropAmount}px)`;
-
-        // translate MUST come before rotate so it moves straight down in global space
         folderFlap.style.transform = `translateY(${dropAmount}px) rotateX(${easeProgress * -40}deg)`;
 
-        // Cards fan out locally. Keep Y values closer to 0 so they stay perfectly centered.
-        const targetTransforms = [
-            { x: -140, y: 30, rot: -15, scale: 1.0 },
-            { x: 0, y: 20, rot: 2, scale: 1.1 },
-            { x: 140, y: 40, rot: 18, scale: 1.0 }
-        ];
+        // Responsive card fan-out targets
+        let targetTransforms;
+        if (windowWidth <= 480) {
+            targetTransforms = [
+                { x: -85, y: 15, rot: -10, scale: 1.0 },
+                { x: 0, y: 8, rot: 1, scale: 1.05 },
+                { x: 85, y: 20, rot: 12, scale: 1.0 }
+            ];
+        } else if (windowWidth <= 768) {
+            targetTransforms = [
+                { x: -110, y: 20, rot: -12, scale: 1.0 },
+                { x: 0, y: 12, rot: 1, scale: 1.08 },
+                { x: 110, y: 25, rot: 14, scale: 1.0 }
+            ];
+        } else {
+            targetTransforms = [
+                { x: -140, y: 30, rot: -15, scale: 1.0 },
+                { x: 0, y: 20, rot: 2, scale: 1.1 },
+                { x: 140, y: 40, rot: 18, scale: 1.0 }
+            ];
+        }
 
         const initialTransforms = [
             { x: -38, y: 2, rot: -3, scale: 1 },
@@ -780,7 +900,7 @@ function initFolderScroll() {
             const currentX = initial.x + (target.x - initial.x) * easeProgress;
             let currentY = initial.y + (target.y - initial.y) * easeProgress;
 
-            // Counteract folder drop so cards stay firmly planted in the center of the viewport
+            // Counteract folder drop so cards stay centered in view
             currentY -= dropAmount;
 
             const currentRot = initial.rot + (target.rot - initial.rot) * easeProgress;
@@ -788,7 +908,20 @@ function initFolderScroll() {
 
             card.style.transform = `translate(${currentX}px, ${currentY}px) rotate(${currentRot}deg) scale(${currentScale})`;
         });
-    });
+
+        ticking = false;
+    }
+
+    const requestTick = () => {
+        if (!ticking) {
+            requestAnimationFrame(updateFolder);
+            ticking = true;
+        }
+    };
+
+    window.addEventListener('scroll', requestTick, { passive: true });
+    window.addEventListener('resize', requestTick, { passive: true });
+    requestTick();
 }
 
 document.addEventListener('DOMContentLoaded', () => {

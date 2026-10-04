@@ -12,8 +12,8 @@ const PORTFOLIO = {
         name: "Alvynx",
         shortName: "ALVYNX",
         title: "B2B SaaS Video Editing Agency",
-        email: "hello@alvynx.com",
-        phone: "+1 000-000-0000",
+        email: "alwan@alvynx.com",
+        phone: "",
         location: "Remote / Worldwide",
         instagram: "https://instagram.com/alvynx",
         youtube: "https://youtube.com/@alvynx",
@@ -24,7 +24,7 @@ const PORTFOLIO = {
     // ─── Hero Section ────────────────────────────────────
     hero: {
         greeting: "B2B SaaS Video Production",
-        title: "Make them stop. Make them understand. Make them buy.",
+        title: 'Make them stop.<br class="hero-br-mobile"> Make them understand.<br class="hero-br-desktop hero-br-mobile"> Make them buy.',
         subtitle: "We produce animated VSLs and ads for SaaS and fintech brands built around attention, clarity, and conversion.",
         videoUrl: "",
     },
@@ -39,60 +39,90 @@ const PORTFOLIO = {
     // ─── Our Work ────────────────────────────────────────
     work: [
         {
-            title: "Deel Launch Ad",
+            title: "Deel",
             tag: "Product Launch",
             tagColor: "pink",
-            description: "A fast-paced launch video built to spread across social channels the day a major feature ships.",
+            description: "A smooth interface animation breaking down multi-currency payroll and compliance into clean visuals.",
             videoSrc: "assest/videos/deel.mp4",
             fileId: "14sKSGo-wlXnJr_rYfcG6CorGQCaOmFlx",
             videoUrl: "https://drive.google.com/file/d/14sKSGo-wlXnJr_rYfcG6CorGQCaOmFlx/preview",
             thumbnail: ""
         },
         {
-            title: "Elevate Pay Explainer",
+            title: "Elevate Pay",
             tag: "Product Demo",
             tagColor: "cyan",
-            description: "A clear, guided walkthrough of core fintech mechanics built to convert and educate trial users.",
+            description: "An engaging animations displaying global USD accounts and seamless international payments.",
             videoSrc: "assest/videos/elevate.mp4",
             fileId: "1bQ5OUPCA3Kjz0ZYJpmyS3ZhLRZZiTcab",
             videoUrl: "https://drive.google.com/file/d/1bQ5OUPCA3Kjz0ZYJpmyS3ZhLRZZiTcab/preview",
             thumbnail: ""
         },
         {
-            title: "Flowla Commercial",
+            title: "Flowla",
             tag: "Product Launch",
             tagColor: "pink",
-            description: "A dynamic commercial ad engineered to highlight seamless workflow and customer engagement.",
+            description: "Dynamic animation highlighting digital sales rooms that streamline complex B2B client onboarding.",
             videoSrc: "assest/videos/flowla.mp4",
             fileId: "1YQN0jxITwz_flEkaSWUirFu2DstSK1Vs",
             videoUrl: "https://drive.google.com/file/d/1YQN0jxITwz_flEkaSWUirFu2DstSK1Vs/preview",
             thumbnail: ""
         },
         {
-            title: "NayaPay Feature Reel",
+            title: "Lightfield",
             tag: "Product Demo",
             tagColor: "cyan",
-            description: "Feature showcase highlighting frictionless mobile payments, modern cards, and app onboarding.",
+            description: "A interface edit highlighting AI assisted email drafting, quick message edits, and automated follow-up sequences.",
+            videoSrc: "assest/videos/lightfield.mp4",
+            fileId: "1P07aSgtpwPoaxczb29URvAvZ9r-SnwAV",
+            videoUrl: "https://drive.google.com/file/d/1P07aSgtpwPoaxczb29URvAvZ9r-SnwAV/preview",
+            thumbnail: ""
+        },
+        {
+            title: "SimpleAI",
+            tag: "AI & SaaS Ad",
+            tagColor: "pink",
+            description: "A slick product breakdown demonstrating automated voice agents and SMS workflows converting leads on autopilot.",
+            videoSrc: "assest/videos/simple_ai.mp4",
+            fileId: "1boJcIenOS9skmiKSOvmPKz_QPC05W82-",
+            videoUrl: "https://drive.google.com/file/d/1boJcIenOS9skmiKSOvmPKz_QPC05W82-/preview",
+            thumbnail: ""
+        },
+        {
+            title: "Code Swifters",
+            tag: "Developer Tool",
+            tagColor: "purple",
+            description: "A modern tech overview displaying website scalable mobile apps, and full stack engineering work.",
+            videoSrc: "assest/videos/code_swifter.mp4",
+            fileId: "1vv2HhVRddzUeVuGoLF1L2T6lRqOWelIC",
+            videoUrl: "https://drive.google.com/file/d/1vv2HhVRddzUeVuGoLF1L2T6lRqOWelIC/preview",
+            thumbnail: ""
+        },
+        {
+            title: "NayaPay",
+            tag: "Product Demo",
+            tagColor: "cyan",
+            description: "High energy animations showcasing mobile app featuring instant digital payments, virtual cards, and more.",
             videoSrc: "assest/videos/nayapay.mp4",
             fileId: "1gFz9jl4ghoUbug9ZzoPaKsEH0C-yf-bM",
             videoUrl: "https://drive.google.com/file/d/1gFz9jl4ghoUbug9ZzoPaKsEH0C-yf-bM/preview",
             thumbnail: ""
         },
         {
-            title: "Ramp 4K Spec Ad",
+            title: "Ramp",
             tag: "Commercial",
             tagColor: "pink",
-            description: "Ultra-sharp 4K motion design emphasizing corporate cards, spend management, and scale.",
+            description: "A crisp kinetic edit illustrating smart corporate cards and automated real-time expense tracking.",
             videoSrc: "assest/videos/ramp.mp4",
             fileId: "1SNjnNQfNOjQhnaYi6u2SVyNmnBTWWI3x",
             videoUrl: "https://drive.google.com/file/d/1SNjnNQfNOjQhnaYi6u2SVyNmnBTWWI3x/preview",
             thumbnail: ""
         },
         {
-            title: "Stenox Short Ad",
+            title: "Stenox",
             tag: "Short-Form Ad",
             tagColor: "cyan",
-            description: "Punchy, high-impact short-form video tailored for high conversion and viral reach.",
+            description: "A high retention animation for desktop ap showcasing instant voice-to-text transcription right on macOS.",
             videoSrc: "assest/videos/stenox.mp4",
             fileId: "1vJm7x0LLeYwkQJoTfhjPsVbKmv62ZPYN",
             videoUrl: "https://drive.google.com/file/d/1vJm7x0LLeYwkQJoTfhjPsVbKmv62ZPYN/preview",
@@ -112,7 +142,7 @@ const PORTFOLIO = {
     process: [
         { title: "Discovery", place: "", description: "One call. We learn your product, your users, and what's not landing." },
         { title: "Script", place: "", description: "Built to convert, not describe. You approve the idea before you see a frame." },
-        { title: "Design & Animation", place: "", description: "Storyboard locked first. Then animated, frame by frame. No mid-project surprises." },
+        { title: "Design & Animation", place: "", description: "Visuals take shape first. Motion brings them alive." },
         { title: "Delivery", place: "", description: "Platform-ready cuts for landing page, ads, socials. Ready to launch, not just finished." },
     ],
 
@@ -141,7 +171,7 @@ const PORTFOLIO = {
                 "No ad creatives included",
                 "Best for first-time clients & single launches",
             ],
-            ctaText: "Book a Call",
+            ctaText: "Request a project",
             ctaLink: "#booking",
         },
         {
@@ -156,7 +186,7 @@ const PORTFOLIO = {
                 "Rolling turnaround, priority queue",
                 "Best for quality over ad volume",
             ],
-            ctaText: "Book a Call",
+            ctaText: "Request a project",
             ctaLink: "#booking",
         },
         {
@@ -172,7 +202,7 @@ const PORTFOLIO = {
                 "Occasional 2nd video in lighter months",
                 "Best for scaling paid social volume",
             ],
-            ctaText: "Book a Call",
+            ctaText: "Request a project",
             ctaLink: "#booking",
         },
     ],

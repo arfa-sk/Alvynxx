@@ -35,9 +35,51 @@
     height: 208px;
     position: relative;
     perspective: 1000px;
-    transform: scale(2.0);
-    /* Scaled massively for maximum impact */
-    transform-origin: center;
+    transform: scale(var(--folder-scale, 2.0));
+    transform-origin: center center;
+    will-change: transform;
+    transition: transform 0.2s ease-out;
+}
+
+@media (max-width: 1200px) {
+    .react-folder-wrapper {
+        --folder-scale: 1.7;
+    }
+}
+
+@media (max-width: 992px) {
+    .react-folder-wrapper {
+        --folder-scale: 1.35;
+    }
+}
+
+@media (max-width: 768px) {
+    .folder-scroll-track {
+        height: 240vh;
+        margin-top: 30px;
+    }
+    .folder-sticky-wrap {
+        height: 100dvh;
+    }
+    .react-folder-wrapper {
+        --folder-scale: 1.1;
+    }
+}
+
+@media (max-width: 480px) {
+    .folder-scroll-track {
+        height: 210vh;
+        margin-top: 15px;
+    }
+    .react-folder-wrapper {
+        --folder-scale: 0.95;
+    }
+}
+
+@media (max-width: 380px) {
+    .react-folder-wrapper {
+        --folder-scale: 0.84;
+    }
 }
 
 .react-folder {

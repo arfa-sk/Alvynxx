@@ -273,6 +273,8 @@ function initSpecularButtons() {
   });
 }
 
+window.initSpecularButtons = initSpecularButtons;
+
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initSpecularButtons);
 } else {

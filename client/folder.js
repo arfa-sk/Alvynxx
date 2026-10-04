@@ -10,32 +10,45 @@ function initFolderScroll() {
 
     if (!track || !folderFlap || !folderBase) return;
 
-    window.addEventListener('scroll', () => {
+    let ticking = false;
+
+    function updateFolder() {
         const rect = track.getBoundingClientRect();
         const windowHeight = window.innerHeight;
+        const windowWidth = window.innerWidth;
 
         let progress = (windowHeight / 2 - rect.top) / (rect.height - windowHeight / 2);
         progress = Math.max(0, Math.min(1, progress));
         const easeProgress = progress < 0.5 ? 4 * progress * progress * progress : 1 - Math.pow(-2 * progress + 2, 3) / 2;
 
-        // Drop the folder slightly down (only happens in the second half of the scroll)
-        // This ensures cards pop out first, THEN folder drops just enough to sit below them
-        const dropProgress = Math.max(0, (easeProgress - 0.5) * 2.0); // 0.0 to 1.0 during the second half
-        const dropAmount = dropProgress * 120; // Drop distance (120 local px = 240 visual px)
+        const dropProgress = Math.max(0, (easeProgress - 0.5) * 2.0);
+        
+        const maxDrop = windowWidth <= 480 ? 60 : (windowWidth <= 768 ? 85 : 120);
+        const dropAmount = dropProgress * maxDrop;
 
-        // We only translate the folder down. We DO NOT fade its opacity, 
-        // because the cards are inside it and would disappear too!
         folderBase.style.transform = `translateY(${dropAmount}px)`;
-
-        // translate MUST come before rotate so it moves straight down in global space
         folderFlap.style.transform = `translateY(${dropAmount}px) rotateX(${easeProgress * -40}deg)`;
 
-        // Cards fan out locally. Keep Y values closer to 0 so they stay perfectly centered.
-        const targetTransforms = [
-            { x: -140, y: 30, rot: -15, scale: 1.0 },
-            { x: 0, y: 20, rot: 2, scale: 1.1 },
-            { x: 140, y: 40, rot: 18, scale: 1.0 }
-        ];
+        let targetTransforms;
+        if (windowWidth <= 480) {
+            targetTransforms = [
+                { x: -85, y: 15, rot: -10, scale: 1.0 },
+                { x: 0, y: 8, rot: 1, scale: 1.05 },
+                { x: 85, y: 20, rot: 12, scale: 1.0 }
+            ];
+        } else if (windowWidth <= 768) {
+            targetTransforms = [
+                { x: -110, y: 20, rot: -12, scale: 1.0 },
+                { x: 0, y: 12, rot: 1, scale: 1.08 },
+                { x: 110, y: 25, rot: 14, scale: 1.0 }
+            ];
+        } else {
+            targetTransforms = [
+                { x: -140, y: 30, rot: -15, scale: 1.0 },
+                { x: 0, y: 20, rot: 2, scale: 1.1 },
+                { x: 140, y: 40, rot: 18, scale: 1.0 }
+            ];
+        }
 
         const initialTransforms = [
             { x: -38, y: 2, rot: -3, scale: 1 },
@@ -51,7 +64,6 @@ function initFolderScroll() {
             const currentX = initial.x + (target.x - initial.x) * easeProgress;
             let currentY = initial.y + (target.y - initial.y) * easeProgress;
 
-            // Counteract folder drop so cards stay firmly planted in the center of the viewport
             currentY -= dropAmount;
 
             const currentRot = initial.rot + (target.rot - initial.rot) * easeProgress;
@@ -59,7 +71,20 @@ function initFolderScroll() {
 
             card.style.transform = `translate(${currentX}px, ${currentY}px) rotate(${currentRot}deg) scale(${currentScale})`;
         });
-    });
+
+        ticking = false;
+    }
+
+    const requestTick = () => {
+        if (!ticking) {
+            requestAnimationFrame(updateFolder);
+            ticking = true;
+        }
+    };
+
+    window.addEventListener('scroll', requestTick, { passive: true });
+    window.addEventListener('resize', requestTick, { passive: true });
+    requestTick();
 }
 
 // ---------------- Boot ----------------
