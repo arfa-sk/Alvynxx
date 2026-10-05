@@ -1,9 +1,9 @@
 /**
  * D3 Wireframe Dotted Globe
- * Ported from wireframe-dotted-globe.tsx for seamless vanilla JS execution.
+ * Ultra-optimized: pre-computed land & dot data, batched canvas drawing, 60fps rAF animation
  */
 
-function initRotatingEarth(containerId = 'globe-container', options = {}) {
+function initRotatingEarth(containerId = 'globe-canvas-wrap', options = {}) {
     const container = document.getElementById(containerId);
     if (!container) return;
 
@@ -15,29 +15,32 @@ function initRotatingEarth(containerId = 'globe-container', options = {}) {
     const context = canvas.getContext('2d');
     if (!context) return;
 
-    const width = options.width || 420;
-    const height = options.height || 420;
+    const targetWidth = options.width || 420;
+    const targetHeight = options.height || 420;
+
+    let containerWidth = 0;
+    let containerHeight = 0;
+    let radius = 0;
+    let dpr = window.devicePixelRatio || 1;
 
     function resize() {
         const rect = container.getBoundingClientRect();
-        const containerWidth = Math.min(width, rect.width || window.innerWidth - 40);
-        const containerHeight = Math.min(height, containerWidth);
-        const radius = containerWidth / 2.3;
+        containerWidth = Math.min(targetWidth, rect.width || window.innerWidth - 40);
+        containerHeight = Math.min(targetHeight, containerWidth);
+        radius = containerWidth / 2.3;
 
-        const dpr = window.devicePixelRatio || 1;
+        dpr = window.devicePixelRatio || 1;
         canvas.width = containerWidth * dpr;
         canvas.height = containerHeight * dpr;
         canvas.style.width = `${containerWidth}px`;
         canvas.style.height = `${containerHeight}px`;
         context.setTransform(1, 0, 0, 1, 0, 0);
         context.scale(dpr, dpr);
-
-        return { containerWidth, containerHeight, radius };
     }
 
-    let { containerWidth, containerHeight, radius } = resize();
+    resize();
 
-    // Create projection and path generator
+    // Create orthographic projection and path generator
     const projection = d3
         .geoOrthographic()
         .scale(radius)
@@ -46,173 +49,133 @@ function initRotatingEarth(containerId = 'globe-container', options = {}) {
 
     const path = d3.geoPath().projection(projection).context(context);
 
-    const pointInPolygon = (point, polygon) => {
-        const [x, y] = point;
-        let inside = false;
+    // Pre-create graticule ONCE outside the render loop
+    const graticule = d3.geoGraticule()();
 
-        for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
-            const [xi, yi] = polygon[i];
-            const [xj, yj] = polygon[j];
-
-            if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) {
-                inside = !inside;
-            }
-        }
-        return inside;
-    };
-
-    const pointInFeature = (point, feature) => {
-        const geometry = feature.geometry;
-
-        if (geometry.type === 'Polygon') {
-            const coordinates = geometry.coordinates;
-            if (!pointInPolygon(point, coordinates[0])) return false;
-            for (let i = 1; i < coordinates.length; i++) {
-                if (pointInPolygon(point, coordinates[i])) return false;
-            }
-            return true;
-        } else if (geometry.type === 'MultiPolygon') {
-            for (const polygon of geometry.coordinates) {
-                if (pointInPolygon(point, polygon[0])) {
-                    let inHole = false;
-                    for (let i = 1; i < polygon.length; i++) {
-                        if (pointInPolygon(point, polygon[i])) {
-                            inHole = true;
-                            break;
-                        }
-                    }
-                    if (!inHole) return true;
-                }
-            }
-            return false;
-        }
-        return false;
-    };
-
-    const generateDotsInPolygon = (feature, dotSpacing = 16) => {
-        const dots = [];
-        const bounds = d3.geoBounds(feature);
-        const [[minLng, minLat], [maxLng, maxLat]] = bounds;
-
-        const stepSize = dotSpacing * 0.08;
-
-        for (let lng = minLng; lng <= maxLng; lng += stepSize) {
-            for (let lat = minLat; lat <= maxLat; lat += stepSize) {
-                const point = [lng, lat];
-                if (pointInFeature(point, feature)) {
-                    dots.push(point);
-                }
-            }
-        }
-        return dots;
-    };
-
-    const allDots = [];
     let landFeatures = null;
+    let allDots = [];
 
     const render = () => {
         context.clearRect(0, 0, containerWidth, containerHeight);
 
         const currentScale = projection.scale();
-        const scaleFactor = currentScale / radius;
+        const scaleFactor = currentScale / (radius || 1);
+        const cx = containerWidth / 2;
+        const cy = containerHeight / 2;
 
         // Draw atmosphere / glow
         const gradient = context.createRadialGradient(
-            containerWidth / 2, containerHeight / 2, currentScale * 0.85,
-            containerWidth / 2, containerHeight / 2, currentScale * 1.15
+            cx, cy, currentScale * 0.85,
+            cx, cy, currentScale * 1.15
         );
         gradient.addColorStop(0, 'rgba(114, 5, 5, 0.25)');
         gradient.addColorStop(0.8, 'rgba(114, 5, 5, 0.08)');
         gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
 
         context.beginPath();
-        context.arc(containerWidth / 2, containerHeight / 2, currentScale * 1.15, 0, 2 * Math.PI);
+        context.arc(cx, cy, currentScale * 1.15, 0, 2 * Math.PI);
         context.fillStyle = gradient;
         context.fill();
 
         // Draw ocean (globe background sphere)
         context.beginPath();
-        context.arc(containerWidth / 2, containerHeight / 2, currentScale, 0, 2 * Math.PI);
+        context.arc(cx, cy, currentScale, 0, 2 * Math.PI);
         context.fillStyle = '#050505';
         context.fill();
         context.strokeStyle = 'rgba(255, 255, 255, 0.2)';
         context.lineWidth = 1.5 * scaleFactor;
         context.stroke();
 
-        if (landFeatures) {
-            // Draw graticule
-            const graticule = d3.geoGraticule();
-            context.beginPath();
-            path(graticule());
-            context.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-            context.lineWidth = 0.8 * scaleFactor;
-            context.stroke();
+        // Draw graticule
+        context.beginPath();
+        path(graticule);
+        context.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+        context.lineWidth = 0.8 * scaleFactor;
+        context.stroke();
 
-            // Draw land outlines
+        if (landFeatures && landFeatures.length > 0) {
+            // Draw land outlines (batched in 1 stroke)
             context.beginPath();
-            landFeatures.features.forEach((feature) => {
-                path(feature);
-            });
+            for (let i = 0; i < landFeatures.length; i++) {
+                path(landFeatures[i]);
+            }
             context.strokeStyle = 'rgba(255, 255, 255, 0.4)';
             context.lineWidth = 1 * scaleFactor;
             context.stroke();
 
-            // Draw halftone dots
-            allDots.forEach((dot) => {
-                const projected = projection([dot.lng, dot.lat]);
-                if (
-                    projected &&
-                    projected[0] >= 0 &&
-                    projected[0] <= containerWidth &&
-                    projected[1] >= 0 &&
-                    projected[1] <= containerHeight
-                ) {
-                    context.beginPath();
-                    context.arc(projected[0], projected[1], 1.2 * scaleFactor, 0, 2 * Math.PI);
-                    context.fillStyle = '#ffffff';
-                    context.fill();
+            // Draw halftone dots (batched in 1 path + 1 fill for maximum performance)
+            if (allDots.length > 0) {
+                const dotR = 1.25 * scaleFactor;
+                const pi2 = Math.PI * 2;
+                context.beginPath();
+                for (let i = 0; i < allDots.length; i++) {
+                    const p = projection(allDots[i]);
+                    if (p) {
+                        context.moveTo(p[0] + dotR, p[1]);
+                        context.arc(p[0], p[1], dotR, 0, pi2);
+                    }
                 }
-            });
+                context.fillStyle = '#ffffff';
+                context.fill();
+            }
         }
     };
 
-    const loadWorldData = async () => {
-        try {
-            const response = await fetch(
-                'https://raw.githubusercontent.com/martynafford/natural-earth-geojson/refs/heads/master/110m/physical/ne_110m_land.json'
-            );
-            if (!response.ok) throw new Error('Failed to load land data');
-
-            landFeatures = await response.json();
-
-            landFeatures.features.forEach((feature) => {
-                const dots = generateDotsInPolygon(feature, 16);
-                dots.forEach(([lng, lat]) => {
-                    allDots.push({ lng, lat, visible: true });
-                });
-            });
-
+    // Load data instantly from local bundled GLOBE_DATA
+    const loadData = () => {
+        if (window.GLOBE_DATA) {
+            landFeatures = window.GLOBE_DATA.features;
+            allDots = window.GLOBE_DATA.dots;
             render();
-        } catch (err) {
-            console.error('Failed to load land map data:', err);
+            return;
         }
+
+        // Fallback: fetch local json files if window.GLOBE_DATA wasn't defined
+        fetch('globe-dots.json')
+            .then(res => res.json())
+            .then(dots => {
+                allDots = dots;
+                return fetch('land-110m.json');
+            })
+            .then(res => res.json())
+            .then(land => {
+                landFeatures = land.features;
+                render();
+            })
+            .catch(err => {
+                console.warn('Fallback globe load failed:', err);
+                render();
+            });
     };
 
     // Set up rotation and interaction
     const rotation = [0, -10];
     let autoRotate = true;
-    const rotationSpeed = 0.4;
+    const rotationSpeed = 0.35;
+    let isVisible = true;
 
-    const rotate = () => {
-        if (autoRotate) {
-            rotation[0] += rotationSpeed;
-            projection.rotate(rotation);
-            render();
+    const animate = () => {
+        if (isVisible) {
+            if (autoRotate) {
+                rotation[0] += rotationSpeed;
+                projection.rotate(rotation);
+                render();
+            }
         }
+        requestAnimationFrame(animate);
     };
 
-    const rotationTimer = d3.timer(rotate);
+    // Only animate when visible in viewport
+    if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                isVisible = entry.isIntersecting;
+            });
+        }, { threshold: 0.05 });
+        observer.observe(container);
+    }
 
+    // Mouse drag interaction
     const handleMouseDown = (event) => {
         autoRotate = false;
         const startX = event.clientX;
@@ -225,8 +188,7 @@ function initRotatingEarth(containerId = 'globe-container', options = {}) {
             const dy = moveEvent.clientY - startY;
 
             rotation[0] = startRotation[0] + dx * sensitivity;
-            rotation[1] = startRotation[1] - dy * sensitivity;
-            rotation[1] = Math.max(-90, Math.min(90, rotation[1]));
+            rotation[1] = Math.max(-90, Math.min(90, startRotation[1] - dy * sensitivity));
 
             projection.rotate(rotation);
             render();
@@ -234,17 +196,17 @@ function initRotatingEarth(containerId = 'globe-container', options = {}) {
 
         const handleMouseUp = () => {
             document.removeEventListener('mousemove', handleMouseMove);
-            document.removeEventListener('mouseup', handleMouseUp)
+            document.removeEventListener('mouseup', handleMouseUp);
             setTimeout(() => {
                 autoRotate = true;
-            }, 500);
+            }, 600);
         };
 
         document.addEventListener('mousemove', handleMouseMove);
         document.addEventListener('mouseup', handleMouseUp);
     };
 
-    // Touch support for mobile
+    // Touch interaction for mobile
     const handleTouchStart = (event) => {
         if (event.touches.length !== 1) return;
         autoRotate = false;
@@ -261,8 +223,7 @@ function initRotatingEarth(containerId = 'globe-container', options = {}) {
             const dy = moveTouch.clientY - startY;
 
             rotation[0] = startRotation[0] + dx * sensitivity;
-            rotation[1] = startRotation[1] - dy * sensitivity;
-            rotation[1] = Math.max(-90, Math.min(90, rotation[1]));
+            rotation[1] = Math.max(-90, Math.min(90, startRotation[1] - dy * sensitivity));
 
             projection.rotate(rotation);
             render();
@@ -273,13 +234,14 @@ function initRotatingEarth(containerId = 'globe-container', options = {}) {
             document.removeEventListener('touchend', handleTouchEnd);
             setTimeout(() => {
                 autoRotate = true;
-            }, 800);
+            }, 600);
         };
 
         document.addEventListener('touchmove', handleTouchMove, { passive: true });
         document.addEventListener('touchend', handleTouchEnd);
     };
 
+    // Zoom on wheel
     const handleWheel = (event) => {
         event.preventDefault();
         const scaleFactor = event.deltaY > 0 ? 0.92 : 1.08;
@@ -293,17 +255,18 @@ function initRotatingEarth(containerId = 'globe-container', options = {}) {
     canvas.addEventListener('wheel', handleWheel, { passive: false });
 
     window.addEventListener('resize', () => {
-        const res = resize();
-        containerWidth = res.containerWidth;
-        containerHeight = res.containerHeight;
-        radius = res.radius;
+        resize();
         projection.scale(radius).translate([containerWidth / 2, containerHeight / 2]);
         render();
     });
 
-    loadWorldData();
+    loadData();
+    requestAnimationFrame(animate);
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+// Initialize on DOM ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => initRotatingEarth('globe-canvas-wrap'));
+} else {
     initRotatingEarth('globe-canvas-wrap');
-});
+}
