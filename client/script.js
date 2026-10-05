@@ -73,9 +73,11 @@ function renderWork(work) {
         let mediaHtml = '';
 
         if (videoSrc) {
+            const filename = videoSrc.split('/').pop().replace(/\.[^/.]+$/, '');
+            const posterSrc = w.thumbnail || `assest/thumbnails/${filename}.jpg`;
             mediaHtml = `
                 <div class="work-video-wrapper">
-                    <video class="work-video-player" src="${videoSrc}" muted autoplay loop playsinline preload="auto" disablepictureinpicture disableremoteplayback></video>
+                    <video class="work-video-player" src="${videoSrc}" poster="${posterSrc}" muted loop playsinline preload="metadata" disablepictureinpicture disableremoteplayback></video>
                     <div class="work-video-overlay">
                         <div class="work-video-controls">
                             <button class="work-control-btn sound-btn" title="Toggle sound" aria-label="Toggle sound">
@@ -149,6 +151,8 @@ function attachWorkVideoEvents(work) {
         const closeModal = () => {
             modal.classList.remove('active');
             modalPlayer.pause();
+            modalPlayer.removeAttribute('src');
+            modalPlayer.load();
             if (modalSpinner) modalSpinner.style.display = 'none';
             // Resume grid playback for visible videos smoothly
             grid.querySelectorAll('.work-video-player').forEach(v => {
@@ -202,7 +206,6 @@ function attachWorkVideoEvents(work) {
         if (video) {
             video.muted = true;
             videoObserver.observe(video);
-            safePlay(video);
         }
 
         if (soundBtn && video) {
@@ -235,8 +238,14 @@ function attachWorkVideoEvents(work) {
             const modalTitle = document.getElementById('video-modal-title');
             const modalSpinner = document.getElementById('video-modal-spinner');
 
+            // Pause all background grid videos immediately to free GPU decoding power
+            grid.querySelectorAll('.work-video-player').forEach(v => safePause(v));
+
             modalTitle.textContent = item.title || 'Video Showcase';
             modal.classList.add('active');
+
+            const filename = item.videoSrc.split('/').pop().replace(/\.[^/.]+$/, '');
+            modalPlayer.poster = item.thumbnail || `assest/thumbnails/${filename}.jpg`;
 
             const resolvedSrc = new URL(item.videoSrc, window.location.href).href;
             if (modalPlayer.src !== resolvedSrc) {
@@ -244,15 +253,12 @@ function attachWorkVideoEvents(work) {
                 modalPlayer.src = item.videoSrc;
             }
 
-            try {
-                if (currentVideoTime > 0) {
-                    modalPlayer.currentTime = currentVideoTime;
-                }
-            } catch (_) {}
-
             modalPlayer.muted = false;
 
             const startPlayback = () => {
+                if (currentVideoTime > 0.5) {
+                    try { modalPlayer.currentTime = currentVideoTime; } catch (_) {}
+                }
                 const p = modalPlayer.play();
                 if (p !== undefined) {
                     p.then(() => {
@@ -266,12 +272,14 @@ function attachWorkVideoEvents(work) {
                 }
             };
 
-            if (modalPlayer.readyState >= 2) {
+            modalPlayer.onplaying = () => {
                 if (modalSpinner) modalSpinner.style.display = 'none';
+            };
+
+            if (modalPlayer.readyState >= 1) {
                 startPlayback();
             } else {
-                modalPlayer.onloadeddata = () => {
-                    if (modalSpinner) modalSpinner.style.display = 'none';
+                modalPlayer.onloadedmetadata = () => {
                     startPlayback();
                 };
             }

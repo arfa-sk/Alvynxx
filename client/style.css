@@ -690,13 +690,14 @@ img {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(0, 0, 0, 0.88);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    background: rgba(0, 0, 0, 0.92);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.2s ease;
     padding: 24px;
+    will-change: opacity;
 }
 
 .video-modal.active {
@@ -713,8 +714,9 @@ img {
     border-radius: 20px;
     overflow: hidden;
     box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(220, 20, 30, 0.2);
-    transform: scale(0.95);
-    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    transform: scale(0.97);
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: transform;
 }
 
 .video-modal.active .video-modal-content {
