@@ -23,7 +23,7 @@ const PORTFOLIO = {
 
     // ─── Hero Section ────────────────────────────────────
     hero: {
-        greeting: "B2B SaaS Video Production",
+        greeting: "Alvynx",
         title: 'Make them stop.<br class="hero-br-mobile"> Make them understand.<br class="hero-br-desktop hero-br-mobile"> Make them buy.',
         subtitle: "We produce animated VSLs and ads for SaaS and fintech brands built around attention, clarity, and conversion.",
         videoUrl: "",
