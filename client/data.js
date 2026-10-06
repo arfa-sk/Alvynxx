@@ -11,7 +11,7 @@ const PORTFOLIO = {
     personal: {
         name: "Alvynx",
         shortName: "ALVYNX",
-        title: "B2B SaaS Video Editing Agency",
+        title: "Alvynx",
         email: "alwan@alvynx.com",
         phone: "",
         location: "Remote / Worldwide",
